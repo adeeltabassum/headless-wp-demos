@@ -17,7 +17,7 @@ export default function FAQ() {
     const root = rootRef.current;
     if (!root) return;
 
-    const items = Array.from(root.querySelectorAll<details>('details.e-n-accordion-item'));
+    const items = Array.from(root.querySelectorAll<HTMLDetailsElement>('details.e-n-accordion-item'));
 
     const sync = (details: HTMLDetailsElement) => {
       const summary = details.querySelector('summary');

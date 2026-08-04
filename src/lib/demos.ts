@@ -4,6 +4,11 @@ export type DemoProject = {
   description: string;
   href: string;
   tag: string;
+  pages: number;
+  status: "Live" | "Preview";
+  stack: string;
+  previewGrad: string;
+  screenshot: string;
 };
 
 export const demoProjects: DemoProject[] = [
@@ -13,6 +18,11 @@ export const demoProjects: DemoProject[] = [
     description: "Local & long-distance movers landing page for San Diego.",
     href: "/local",
     tag: "Local Business",
+    pages: 1,
+    status: "Live",
+    stack: "Next.js · Tailwind",
+    previewGrad: "linear-gradient(135deg, #1a1a1a 0%, #3a1518 45%, #d63742 100%)",
+    screenshot: "/gallery/screenshots/local.png",
   },
   {
     id: "niche-blog",
@@ -20,6 +30,11 @@ export const demoProjects: DemoProject[] = [
     description: "Niche blog homepage, categories, and inner pages.",
     href: "/niche-blog",
     tag: "Niche Blog",
+    pages: 18,
+    status: "Live",
+    stack: "Next.js · SSG",
+    previewGrad: "linear-gradient(135deg, #111 0%, #1c2a1f 50%, #7ffba9 100%)",
+    screenshot: "/gallery/screenshots/niche-blog.png",
   },
   {
     id: "grub-gadget",
@@ -27,6 +42,11 @@ export const demoProjects: DemoProject[] = [
     description: "Kitchen appliance blog with categories and single posts.",
     href: "/grub-gadget",
     tag: "Niche Blog",
+    pages: 14,
+    status: "Live",
+    stack: "Next.js · SSG",
+    previewGrad: "linear-gradient(135deg, #111 0%, #2a2214 50%, #f59e0b 100%)",
+    screenshot: "/gallery/screenshots/grub-gadget.png",
   },
   {
     id: "saas",
@@ -34,5 +54,10 @@ export const demoProjects: DemoProject[] = [
     description: "Modern SAAS landing page with pricing, testimonials, and FAQs.",
     href: "/saas",
     tag: "SAAS",
+    pages: 1,
+    status: "Live",
+    stack: "Next.js · Elementor CSS",
+    previewGrad: "linear-gradient(135deg, #0a0a0a 0%, #12241f 40%, #40edc3 100%)",
+    screenshot: "/gallery/screenshots/saas.png",
   },
 ];

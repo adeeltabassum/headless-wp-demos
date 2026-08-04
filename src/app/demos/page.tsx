@@ -1,59 +1,143 @@
-import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
+import GalleryShell from "@/components/gallery/GalleryShell";
 import { demoProjects } from "@/lib/demos";
 
-export const metadata: Metadata = {
-  title: "Project Demos | Headless WP",
-  description: "Browse all recreated website demos in one place.",
-};
+const totalPages = demoProjects.reduce((sum, project) => sum + project.pages, 0);
+const liveCount = demoProjects.filter((project) => project.status === "Live").length;
+const categories = new Set(demoProjects.map((project) => project.tag)).size;
 
 export default function DemosPage() {
   return (
-    <main className="min-h-screen bg-[#f7f7f5] text-[#141414]">
-      <div className="mx-auto max-w-5xl px-6 py-16 md:py-20">
-        <p className="text-sm font-semibold uppercase tracking-[0.14em] text-[#666]">
-          Client demos
-        </p>
-        <h1 className="mt-3 text-4xl font-bold tracking-tight md:text-5xl">
-          Project gallery
-        </h1>
-        <p className="mt-4 max-w-2xl text-lg leading-relaxed text-[#444]">
-          Open any project below. One public link for everything — no temporary
-          tunnels needed after this site is deployed.
-        </p>
+    <GalleryShell active="demos">
+      <section className="sg-hero">
+        <div className="sg-hero__glow" aria-hidden="true" />
+        <div className="sg-hero__glow sg-hero__glow--left" aria-hidden="true" />
+        <div className="wrap sg-hero__inner">
+          <div className="sg-hero__eyebrow">
+            <span className="badge badge--soft">Client demos</span>
+            <span className="annot">
+              <span className="annot__dot" />
+              Production-ready previews
+            </span>
+          </div>
+          <h1>
+            Project <span className="grad-text">gallery</span>
+          </h1>
+          <p className="sg-hero__sub">
+            Open any recreation below. One public link for everything — no temporary
+            tunnels needed after this site is deployed.
+          </p>
+          <div className="sg-hero__cta">
+            <a href="#projects" className="btn btn--primary btn--lg">
+              Browse projects
+            </a>
+            <Link href="/" className="btn btn--secondary btn--lg">
+              Back to home
+            </Link>
+          </div>
+        </div>
+      </section>
 
-        <ul className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {demoProjects.map((project) => (
-            <li key={project.id}>
-              <Link
-                href={project.href}
-                className="group flex h-full flex-col rounded-2xl border border-[#e4e4e0] bg-white p-6 shadow-sm transition hover:-translate-y-0.5 hover:border-[#cfcfc8] hover:shadow-md"
-              >
-                <span className="inline-flex w-fit rounded-full bg-[#f0f0ec] px-3 py-1 text-xs font-semibold uppercase tracking-wide text-[#555]">
-                  {project.tag}
-                </span>
-                <h2 className="mt-4 text-xl font-bold group-hover:text-[#0b5fff]">
-                  {project.name}
-                </h2>
-                <p className="mt-2 flex-1 text-sm leading-relaxed text-[#555]">
-                  {project.description}
-                </p>
-                <span className="mt-6 inline-flex items-center text-sm font-semibold text-[#0b5fff]">
-                  Open project
-                  <span className="ml-1 transition group-hover:translate-x-0.5">→</span>
-                </span>
-              </Link>
-            </li>
-          ))}
-        </ul>
+      <section className="sg-section" style={{ paddingTop: 48, paddingBottom: 0 }}>
+        <div className="wrap">
+          <div className="kpi-grid">
+            <article className="kpi">
+              <div className="kpi__label">Projects</div>
+              <div className="kpi__value grad-text">{demoProjects.length}</div>
+              <p className="kpi__foot">Live demo sites</p>
+            </article>
+            <article className="kpi">
+              <div className="kpi__label">Pages</div>
+              <div className="kpi__value">{totalPages}</div>
+              <p className="kpi__foot">Static routes generated</p>
+            </article>
+            <article className="kpi">
+              <div className="kpi__label">Categories</div>
+              <div className="kpi__value">{categories}</div>
+              <p className="kpi__foot">Business types covered</p>
+            </article>
+            <article className="kpi">
+              <div className="kpi__label">Status</div>
+              <div className="kpi__value">{liveCount}</div>
+              <p className="kpi__foot">Ready to share</p>
+            </article>
+          </div>
+        </div>
+      </section>
 
-        <p className="mt-12 text-sm text-[#666]">
-          Share this page after deploy:{" "}
-          <code className="rounded bg-white px-1.5 py-0.5 text-[#222]">
-            your-domain.com/demos
-          </code>
-        </p>
-      </div>
-    </main>
+      <section className="sg-section" id="projects">
+        <div className="wrap">
+          <div className="sg-section__head">
+            <div>
+              <h2>
+                Featured <span className="grad-text">sites</span>
+              </h2>
+              <p>
+                Each card opens a full Next.js recreation. Hover for depth, then click
+                through to review layout, content, and responsiveness.
+              </p>
+            </div>
+            <span className="badge badge--outline">{demoProjects.length} available</span>
+          </div>
+
+          <ul className="project-grid" style={{ listStyle: "none", margin: 0, padding: 0 }}>
+            {demoProjects.map((project) => (
+              <li key={project.id}>
+                <article className="project-card">
+                  <Link href={project.href} className="project-card__media" tabIndex={-1}>
+                    <div className="project-card__chrome" aria-hidden="true">
+                      <span className="project-card__dot" />
+                      <span className="project-card__dot" />
+                      <span className="project-card__dot" />
+                      <span className="project-card__url">{project.href}</span>
+                    </div>
+                    <div className="project-card__shot">
+                      <Image
+                        src={project.screenshot}
+                        alt={`${project.name} preview`}
+                        fill
+                        className="project-card__img"
+                        sizes="(max-width: 900px) 100vw, 50vw"
+                        priority={project.id === "local"}
+                      />
+                    </div>
+                  </Link>
+
+                  <div className="project-card__body">
+                    <div className="project-card__meta">
+                      <span className="badge badge--outline">{project.tag}</span>
+                      <span className="badge badge--success">{project.status}</span>
+                    </div>
+
+                    <h3>
+                      <Link href={project.href}>{project.name}</Link>
+                    </h3>
+                    <p className="project-card__desc">{project.description}</p>
+
+                    <div className="project-card__stats">
+                      <span className="project-card__stat">
+                        <strong>{project.pages}</strong>
+                        {project.pages === 1 ? "page" : "pages"}
+                      </span>
+                      <span className="project-card__stat">
+                        <strong>Stack</strong>
+                        {project.stack}
+                      </span>
+                    </div>
+
+                    <div className="project-card__footer">
+                      <Link href={project.href} className="btn btn--primary btn--sm">
+                        View demo
+                      </Link>
+                    </div>
+                  </div>
+                </article>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    </GalleryShell>
   );
 }

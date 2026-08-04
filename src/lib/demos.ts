@@ -28,4 +28,11 @@ export const demoProjects: DemoProject[] = [
     href: "/grub-gadget",
     tag: "Niche Blog",
   },
+  {
+    id: "saas",
+    name: "SAAS Template",
+    description: "Modern SAAS landing page with pricing, testimonials, and FAQs.",
+    href: "/saas",
+    tag: "SAAS",
+  },
 ];

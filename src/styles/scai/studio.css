@@ -1,0 +1,714 @@
+/**
+ * SCAI Studio — site builder UI (chat, draft, preview chrome).
+ * Layout classes remain `builder-*` for component compatibility;
+ * all visuals use SCAI design tokens.
+ */
+
+.scai-studio.builder-app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Topbar ── */
+.scai-studio .builder-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--s-16);
+  padding: 0 var(--s-20);
+  height: var(--header-h);
+  background: rgba(3, 3, 3, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: var(--bd-1);
+  flex-wrap: wrap;
+}
+
+.scai-studio .builder-topbar__brand {
+  display: none;
+}
+
+.scai-studio .builder-topbar__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 160px;
+}
+
+.scai-studio .builder-topbar__meta input {
+  border: none;
+  background: transparent;
+  font-size: 16px;
+  font-weight: 600;
+  padding: 2px 0;
+  width: 100%;
+  color: var(--scai-text);
+  font-family: var(--font-head);
+  letter-spacing: -0.3px;
+}
+
+.scai-studio .builder-topbar__meta input::placeholder {
+  color: var(--text-muted);
+}
+
+.scai-studio .builder-topbar__meta input:focus {
+  outline: none;
+}
+
+.scai-studio .builder-topbar__slug {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--scai-primary);
+}
+
+.scai-studio .builder-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--s-8);
+  flex-wrap: wrap;
+}
+
+/* Map legacy builder-btn to SCAI buttons */
+.scai-studio .builder-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 1;
+  padding: 9px 16px;
+  border-radius: var(--r);
+  border: 1px solid var(--bd-bright);
+  background: var(--surface);
+  color: var(--scai-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    background var(--dur) var(--ease),
+    color var(--dur) var(--ease),
+    border-color var(--dur) var(--ease),
+    filter var(--dur) var(--ease);
+}
+
+.scai-studio .builder-btn:hover:not(:disabled) {
+  border-color: var(--scai-primary);
+  color: var(--scai-text);
+}
+
+.scai-studio .builder-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.scai-studio .builder-btn--primary {
+  background: var(--scai-grad);
+  color: #030303;
+  font-weight: 700;
+  border: 0;
+  box-shadow: var(--scai-shadow-glow);
+}
+
+.scai-studio .builder-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+  color: #030303;
+}
+
+.scai-studio .builder-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+}
+
+.scai-studio .builder-btn--ghost:hover:not(:disabled) {
+  background: var(--surface);
+}
+
+.scai-studio .builder-btn--sm {
+  font-size: 12px;
+  padding: 6px 12px;
+}
+
+.scai-studio .builder-btn--danger {
+  color: var(--fn-danger);
+  border-color: rgba(248, 113, 113, 0.35);
+}
+
+.scai-studio .builder-btn--danger:hover:not(:disabled) {
+  background: rgba(248, 113, 113, 0.1);
+  border-color: var(--fn-danger);
+}
+
+/* ── Status banners ── */
+.scai-studio .builder-status {
+  font-size: 13px;
+  padding: 10px var(--s-20);
+  border-bottom: var(--bd-1);
+  background: var(--surface);
+  color: var(--scai-muted);
+}
+
+.scai-studio .builder-status--error {
+  color: var(--fn-danger);
+  background: rgba(248, 113, 113, 0.08);
+  border-bottom-color: rgba(248, 113, 113, 0.2);
+}
+
+.scai-studio .builder-status--success {
+  color: var(--fn-success);
+  background: rgba(52, 211, 153, 0.08);
+  border-bottom-color: rgba(52, 211, 153, 0.2);
+}
+
+/* ── Main layout ── */
+.scai-studio .builder-main {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  min-height: 0;
+}
+
+@media (max-width: 900px) {
+  .scai-studio .builder-main {
+    grid-template-columns: 1fr;
+  }
+  .scai-studio .builder-chat {
+    display: none;
+  }
+  .scai-studio .builder-chat.is-open {
+    display: flex;
+    position: fixed;
+    inset: var(--header-h) 0 0 0;
+    z-index: 40;
+  }
+}
+
+/* ── Chat panel ── */
+.scai-studio .builder-chat__head {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--s-14) var(--s-16) var(--s-8);
+  border-bottom: var(--bd-1);
+  background: var(--scai-bg);
+}
+
+.scai-studio .builder-chat {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border-right: var(--bd-1);
+  min-height: 0;
+}
+
+.scai-studio .builder-chat__messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--s-16);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scai-studio .builder-msg {
+  max-width: 88%;
+  padding: 10px 14px;
+  border-radius: 14px;
+  line-height: 1.55;
+  font-size: 13.5px;
+  white-space: pre-wrap;
+}
+
+.scai-studio .builder-msg--user {
+  align-self: flex-end;
+  background: var(--scai-grad);
+  color: #030303;
+  font-weight: 500;
+  border-bottom-right-radius: 4px;
+}
+
+.scai-studio .builder-msg--assistant {
+  align-self: flex-start;
+  background: var(--input);
+  color: var(--scai-text);
+  border: var(--bd-1);
+  border-bottom-left-radius: 4px;
+}
+
+.scai-studio .builder-chat__hint {
+  font-size: 12px;
+  color: var(--scai-muted);
+  padding: 0 var(--s-16) var(--s-8);
+}
+
+.scai-studio .builder-chat__form {
+  display: flex;
+  gap: var(--s-8);
+  padding: var(--s-12);
+  border-top: var(--bd-1);
+  background: var(--scai-bg);
+}
+
+.scai-studio .builder-chat__form textarea {
+  flex: 1;
+  resize: none;
+  border: var(--bd-1);
+  border-radius: var(--r);
+  padding: 10px 12px;
+  font-family: inherit;
+  font-size: 13.5px;
+  min-height: 42px;
+  max-height: 120px;
+  background: var(--input);
+  color: var(--scai-text);
+}
+
+.scai-studio .builder-chat__form textarea:focus {
+  outline: none;
+  border-color: var(--scai-primary);
+}
+
+.scai-studio .builder-chat__form textarea::placeholder {
+  color: var(--text-muted);
+}
+
+/* ── Tabs ── */
+.scai-studio .builder-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface);
+  border-bottom: var(--bd-1);
+  padding: 0 var(--s-12);
+}
+
+.scai-studio .builder-tabs button {
+  appearance: none;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 14px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: var(--scai-muted);
+  cursor: pointer;
+  transition: color var(--dur) var(--ease);
+}
+
+.scai-studio .builder-tabs button:hover {
+  color: var(--scai-text);
+}
+
+.scai-studio .builder-tabs button.is-active {
+  color: var(--scai-text);
+  border-bottom-color: var(--scai-primary);
+  background: linear-gradient(180deg, transparent 0%, rgba(64, 237, 195, 0.06) 100%);
+}
+
+.scai-studio .builder-tabs__spacer {
+  flex: 1;
+}
+
+.scai-studio .builder-panel {
+  overflow-y: auto;
+  min-height: 0;
+  background: var(--scai-bg);
+}
+
+/* ── Draft form ── */
+.scai-studio .builder-draft {
+  padding: var(--s-24);
+  max-width: 860px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-20);
+}
+
+.scai-studio .builder-section {
+  background: var(--surface);
+  border: var(--bd-1);
+  border-radius: var(--r-xl);
+  padding: var(--s-20);
+  box-shadow: var(--sh);
+}
+
+.scai-studio .builder-section__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-12);
+  margin-bottom: 4px;
+}
+
+.scai-studio .builder-section h2 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.scai-studio .builder-section .hint {
+  margin: 2px 0 14px;
+}
+
+.scai-studio .builder-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.scai-studio .builder-field:last-child {
+  margin-bottom: 0;
+}
+
+.scai-studio .builder-field label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--scai-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.scai-studio .builder-field input[type="text"],
+.scai-studio .builder-field input[type="email"],
+.scai-studio .builder-field input:not([type]),
+.scai-studio .builder-field textarea,
+.scai-studio .builder-field select {
+  padding: 10px 12px;
+  border: var(--bd-1);
+  border-radius: var(--r);
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+  background: var(--input);
+  color: var(--scai-text);
+}
+
+.scai-studio .builder-field input[type="color"] {
+  width: 44px;
+  height: 32px;
+  padding: 2px;
+  border: var(--bd-1);
+  border-radius: var(--r);
+  background: var(--input);
+}
+
+.scai-studio .builder-field textarea {
+  resize: vertical;
+  min-height: 70px;
+}
+
+.scai-studio .builder-field input:focus,
+.scai-studio .builder-field textarea:focus,
+.scai-studio .builder-field select:focus {
+  outline: none;
+  border-color: var(--scai-primary);
+}
+
+.scai-studio .builder-row {
+  display: flex;
+  gap: var(--s-12);
+  flex-wrap: wrap;
+}
+
+.scai-studio .builder-row > .builder-field {
+  flex: 1;
+  min-width: 140px;
+}
+
+.scai-studio .builder-color-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s-8);
+}
+
+.scai-studio .builder-color-row span {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--scai-muted);
+}
+
+.scai-studio .builder-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-12);
+}
+
+.scai-studio .builder-card {
+  position: relative;
+  border: var(--bd-1);
+  border-radius: var(--r-lg);
+  padding: 14px 40px 14px 14px;
+  background: var(--surface-2);
+}
+
+.scai-studio .builder-card__remove {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  color: var(--scai-muted);
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.scai-studio .builder-card__remove:hover {
+  color: var(--fn-danger);
+}
+
+.scai-studio .builder-inline-actions {
+  display: flex;
+  gap: var(--s-8);
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Image slots ── */
+.scai-studio .builder-image-slot {
+  display: flex;
+  align-items: center;
+  gap: var(--s-12);
+}
+
+.scai-studio .builder-image-slot__thumb {
+  width: 84px;
+  height: 84px;
+  border-radius: var(--r);
+  border: var(--bd-1);
+  background: var(--input);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.scai-studio .builder-image-slot__meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.scai-studio .builder-image-slot__meta strong {
+  display: block;
+  font-size: 13px;
+  margin-bottom: 4px;
+}
+
+.scai-studio .builder-image-slot__meta span {
+  font-size: 11.5px;
+  color: var(--scai-muted);
+  font-family: var(--font-mono);
+}
+
+/* ── Preview chrome (site preview stays light inside) ── */
+.scai-studio .builder-preview-frame {
+  padding: var(--s-24);
+  background: var(--surface-2);
+  min-height: 100%;
+  overflow: auto;
+}
+
+.scai-studio .builder-preview-chrome {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-12);
+  max-width: 1200px;
+  margin: 0 auto 10px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border: var(--bd-1);
+  border-radius: var(--r-lg);
+  font-size: 13px;
+  color: var(--scai-muted);
+}
+
+.scai-studio .builder-preview-chrome__label {
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
+
+.scai-studio .builder-preview-chrome__home {
+  border: 1px solid var(--bd-bright);
+  background: var(--input);
+  color: var(--scai-text);
+  border-radius: var(--r);
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: border-color var(--dur) var(--ease);
+}
+
+.scai-studio .builder-preview-chrome__home:hover {
+  border-color: var(--scai-primary);
+  color: var(--scai-primary);
+}
+
+.scai-studio .builder-preview-inner {
+  background: #fff;
+  border-radius: var(--r-xl);
+  overflow: hidden;
+  box-shadow: var(--sh-card);
+  max-width: 1200px;
+  margin: 0 auto;
+  border: var(--bd-1);
+}
+
+.scai-studio .builder-empty {
+  padding: 80px 20px;
+  text-align: center;
+  color: var(--scai-muted);
+  max-width: 360px;
+  margin: 0 auto;
+}
+
+/* ── Login gate ── */
+.scai-studio.builder-gate {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.scai-studio.builder-gate::before {
+  content: "";
+  position: absolute;
+  top: 20%;
+  right: 15%;
+  width: 280px;
+  height: 280px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(64, 237, 195, 0.2) 0%, transparent 70%);
+  pointer-events: none;
+  filter: blur(8px);
+}
+
+.scai-studio .builder-gate__card {
+  position: relative;
+  z-index: 1;
+  background: var(--surface);
+  border: var(--bd-1);
+  padding: var(--s-32);
+  border-radius: var(--r-2xl);
+  width: min(380px, 92vw);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-14);
+  box-shadow: var(--sh-card), var(--scai-shadow-glow);
+}
+
+.scai-studio .builder-gate__card h1 {
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.scai-studio .builder-gate__card p {
+  font-size: 14px;
+  color: var(--scai-muted);
+  line-height: 1.55;
+}
+
+.scai-studio .builder-gate__card input {
+  padding: 12px 14px;
+  border: var(--bd-1);
+  border-radius: var(--r);
+  font-size: 14px;
+  background: var(--input);
+  color: var(--scai-text);
+}
+
+.scai-studio .builder-gate__card input:focus {
+  outline: none;
+  border-color: var(--scai-primary);
+}
+
+.scai-studio .builder-gate__card button {
+  padding: 12px 14px;
+  border: none;
+  border-radius: var(--r);
+  background: var(--scai-grad);
+  color: #030303;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: var(--scai-shadow-glow);
+}
+
+.scai-studio .builder-gate__card button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.scai-studio .builder-gate__error {
+  color: var(--fn-danger);
+  font-size: 13px;
+}
+
+/* ── Sites dashboard ── */
+.scai-studio .builder-dashboard {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--s-40) var(--s-20);
+}
+
+.scai-studio .builder-dashboard__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-16);
+  margin-bottom: var(--s-24);
+  flex-wrap: wrap;
+}
+
+.scai-studio .builder-dashboard__head h1 {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -1px;
+}
+
+.scai-studio .builder-dashboard h2 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--scai-muted);
+  margin: var(--s-28) 0 var(--s-12);
+}
+
+.scai-studio .builder-dashboard__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: var(--s-14);
+}
+
+.scai-studio .builder-dashboard__card {
+  background: var(--surface);
+  border: var(--bd-1);
+  border-radius: var(--r-xl);
+  padding: var(--s-20);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  transition:
+    border-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease);
+}
+
+.scai-studio .builder-dashboard__card:hover {
+  border-color: rgba(64, 237, 195, 0.35);
+  box-shadow: var(--sh-md);
+}
+
+.scai-studio .builder-dashboard__card h3 {
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.scai-studio .builder-dashboard__card span {
+  font-size: 12px;
+  color: var(--scai-muted);
+  font-family: var(--font-mono);
+}

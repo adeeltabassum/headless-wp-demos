@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="480" viewBox="0 0 1600 480">
+  <rect width="1600" height="480" fill="#3a3a3a"/>
+  <line x1="0" y1="0" x2="1600" y2="480" stroke="#4a4a4a" stroke-width="3"/>
+  <line x1="1600" y1="0" x2="0" y2="480" stroke="#4a4a4a" stroke-width="3"/>
+  <text x="800" y="248" font-family="Arial, sans-serif" font-size="26" fill="#b5b5b5" text-anchor="middle">Page banner - 1600x480 (10:3)</text>
+</svg>

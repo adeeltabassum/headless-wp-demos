@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500" viewBox="0 0 800 500">
+  <rect width="800" height="500" fill="#e4e4e4"/>
+  <line x1="0" y1="0" x2="800" y2="500" stroke="#cfcfcf" stroke-width="2"/>
+  <line x1="800" y1="0" x2="0" y2="500" stroke="#cfcfcf" stroke-width="2"/>
+  <rect x="230" y="228" width="340" height="44" fill="#e4e4e4"/>
+  <text x="400" y="258" font-family="Arial, sans-serif" font-size="22" fill="#9a9a9a" text-anchor="middle">Article thumbnail - 800x500 (16:10)</text>
+</svg>

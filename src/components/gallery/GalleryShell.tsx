@@ -8,7 +8,7 @@ type GalleryShellProps = {
 
 export default function GalleryShell({ children, active = "demos" }: GalleryShellProps) {
   return (
-    <div className="scai-gallery">
+    <div className="scai scai-gallery">
       <header className="sg-header">
         <div className="wrap sg-header__inner">
           <Link href="/" className="sg-logo" aria-label="Headless WP home">
@@ -23,6 +23,7 @@ export default function GalleryShell({ children, active = "demos" }: GalleryShel
             <Link href="/demos" className={active === "demos" ? "is-active" : undefined}>
               Demos
             </Link>
+            <Link href="/studio">Studio</Link>
           </nav>
 
           <div className="sg-header__actions">

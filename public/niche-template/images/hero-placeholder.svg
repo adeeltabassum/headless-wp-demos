@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="800" viewBox="0 0 1600 800">
+  <rect width="1600" height="800" fill="#dcdcdc"/>
+  <line x1="0" y1="0" x2="1600" y2="800" stroke="#c4c4c4" stroke-width="3"/>
+  <line x1="1600" y1="0" x2="0" y2="800" stroke="#c4c4c4" stroke-width="3"/>
+  <rect x="600" y="370" width="400" height="60" fill="#dcdcdc"/>
+  <text x="800" y="410" font-family="Arial, sans-serif" font-size="30" fill="#8a8a8a" text-anchor="middle">Hero image - 1600x800 (2:1)</text>
+</svg>

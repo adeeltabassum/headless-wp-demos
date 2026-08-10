@@ -1,6 +1,5 @@
 import Link from "next/link";
 import GalleryShell from "@/components/gallery/GalleryShell";
-import { demoProjects } from "@/lib/demos";
 import "@/styles/scai/gallery.css";
 
 export default function HomePage() {
@@ -12,10 +11,10 @@ export default function HomePage() {
           <div className="sg-hero__glow sg-hero__glow--left" aria-hidden="true" />
           <div className="wrap sg-home__panel">
             <div className="sg-hero__eyebrow">
-              <span className="badge badge--solid">Headless WP</span>
+              <span className="badge badge--solid">SCAI</span>
               <span className="annot">
                 <span className="annot__dot" />
-                {demoProjects.length} live demos
+                SEO Content AI
               </span>
             </div>
             <h1>
@@ -23,21 +22,21 @@ export default function HomePage() {
               <span className="grad-text">client review</span>
             </h1>
             <p className="sg-hero__sub">
-              Browse polished Next.js ports of HTML templates from one gallery —
-              share a single public URL instead of temporary tunnels.
+              Browse polished Next.js ports of HTML templates from one gallery — or open SCAI Studio to
+              draft and publish niche sites with AI.
             </p>
             <div className="sg-hero__cta">
               <Link href="/demos" className="btn btn--primary btn--lg">
                 Open project demos
               </Link>
-              <Link href="/saas" className="btn btn--outline btn--lg">
-                Latest: SAAS template
+              <Link href="/studio" className="btn btn--outline btn--lg">
+                SCAI Studio
               </Link>
             </div>
             <ul className="sg-home__list">
-              <li>Dark SCAI presentation shell for a professional first impression</li>
+              <li>Dark SCAI design system across gallery and studio</li>
+              <li>AI-powered site builder at /studio</li>
               <li>One gallery link covering every recreated site</li>
-              <li>Fast static routes ready for Vercel sharing</li>
             </ul>
           </div>
         </div>

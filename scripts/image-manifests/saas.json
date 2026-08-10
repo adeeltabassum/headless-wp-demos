@@ -1,0 +1,17 @@
+[
+  {
+    "output": "public/saas/images/placeholder-hero.png",
+    "prompt": "A modern SaaS product dashboard screenshot on a laptop, dark UI with mint-green accent charts, floating above a soft gradient background, minimal and premium, no text",
+    "aspectRatio": "4:3"
+  },
+  {
+    "output": "public/saas/images/placeholder-blog.png",
+    "prompt": "Abstract blog cover illustration, minimal geometric shapes, mint green and lime gradient, flat design, no text",
+    "aspectRatio": "4:3"
+  },
+  {
+    "output": "public/saas/images/logo.png",
+    "prompt": "A simple modern circular logo mark for a SaaS company, mint green gradient, minimal wave symbol, flat vector style, transparent background, no text",
+    "aspectRatio": "1:1"
+  }
+]

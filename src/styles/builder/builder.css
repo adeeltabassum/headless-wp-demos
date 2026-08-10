@@ -1,0 +1,6 @@
+/**
+ * Legacy import path — studio UI now lives in scai/studio.css
+ */
+@import "../scai/tokens.css";
+@import "../scai/components.css";
+@import "../scai/studio.css";

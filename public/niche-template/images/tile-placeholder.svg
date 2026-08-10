@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="640" height="640" viewBox="0 0 640 640">
+  <rect width="640" height="640" fill="#dcdcdc"/>
+  <line x1="0" y1="0" x2="640" y2="640" stroke="#c4c4c4" stroke-width="3"/>
+  <line x1="640" y1="0" x2="0" y2="640" stroke="#c4c4c4" stroke-width="3"/>
+  <rect x="170" y="295" width="300" height="50" fill="#dcdcdc"/>
+  <text x="320" y="330" font-family="Arial, sans-serif" font-size="26" fill="#8a8a8a" text-anchor="middle">Category tile - 640x640 (1:1)</text>
+</svg>

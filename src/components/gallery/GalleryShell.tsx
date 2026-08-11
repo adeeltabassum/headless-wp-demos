@@ -3,32 +3,34 @@ import type { ReactNode } from "react";
 
 type GalleryShellProps = {
   children: ReactNode;
-  active?: "home" | "demos";
+  active?: "home" | "templates";
 };
 
-export default function GalleryShell({ children, active = "demos" }: GalleryShellProps) {
+export default function GalleryShell({ children, active = "templates" }: GalleryShellProps) {
   return (
     <div className="scai scai-gallery">
       <header className="sg-header">
         <div className="wrap sg-header__inner">
-          <Link href="/" className="sg-logo" aria-label="Headless WP home">
-            <span className="sg-logo__mark">H</span>
-            <span>Headless WP</span>
+          <Link href="/" className="sg-logo" aria-label="SCAI home">
+            <span className="sg-logo__mark">S</span>
+            <span>
+              SCAI <span className="grad-text">Templates</span>
+            </span>
           </Link>
 
           <nav className="sg-nav" aria-label="Primary">
             <Link href="/" className={active === "home" ? "is-active" : undefined}>
               Home
             </Link>
-            <Link href="/demos" className={active === "demos" ? "is-active" : undefined}>
-              Demos
+            <Link href="/templates" className={active === "templates" ? "is-active" : undefined}>
+              Templates
             </Link>
             <Link href="/studio">Studio</Link>
           </nav>
 
           <div className="sg-header__actions">
-            <Link href="/demos" className="btn btn--primary btn--sm">
-              View projects
+            <Link href="/templates" className="btn btn--primary btn--sm">
+              Browse templates
             </Link>
           </div>
         </div>
@@ -38,9 +40,9 @@ export default function GalleryShell({ children, active = "demos" }: GalleryShel
 
       <footer className="sg-footer">
         <div className="wrap sg-footer__inner">
-          <p>Headless WP · Next.js page recreations</p>
+          <p>SCAI · SEO Content AI template library</p>
           <p>
-            Share gallery: <code>/demos</code>
+            Template index: <code>/templates</code>
           </p>
         </div>
       </footer>

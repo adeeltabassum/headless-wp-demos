@@ -18,8 +18,18 @@ export function contentToBuilderDraft(
 
   return {
     slug,
+    domain: `${slug}.com`,
     siteName: content.siteName,
+    templateId: "niche-template",
     description: content.metadata.description,
+    designSystemId: "custom",
+    enabledPages: {
+      about: content.pages.some((p) => p.slug === "about"),
+      faq: content.pages.some((p) => p.slug === "faq"),
+      privacy: content.pages.some((p) => p.slug === "privacy-policy"),
+      terms: content.pages.some((p) => p.slug === "terms"),
+      contact: content.pages.some((p) => p.slug === "contact"),
+    },
     theme,
     logo: content.logo,
     favicon: content.favicon,

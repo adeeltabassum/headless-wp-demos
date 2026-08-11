@@ -125,6 +125,17 @@ export type NicheThemeInput = z.infer<typeof NicheThemeSchema>;
  * non-technical person instead of requiring every one of the ~15 content
  * fields to be filled in by hand.
  */
+export const TEMPLATE_IDS = ["niche-template", "local", "saas"] as const;
+export type TemplateId = (typeof TEMPLATE_IDS)[number];
+
+export const EnabledPagesSchema = z.object({
+  about: z.boolean().default(true),
+  faq: z.boolean().default(false),
+  privacy: z.boolean().default(true),
+  terms: z.boolean().default(true),
+  contact: z.boolean().default(true),
+});
+
 export const BuilderCategorySchema = z.object({
   label: z.string().min(1),
   slug: z.string().min(1).optional(),
@@ -143,15 +154,27 @@ export const BuilderArticleSchema = z.object({
 });
 
 export const BuilderDraftSchema = z.object({
+  /** Publish path identifier (derived from domain). */
   slug: z.string().regex(/^[a-z0-9-]+$/, "lowercase letters, numbers, hyphens only"),
+  /** User-facing domain label, e.g. mybrand.com */
+  domain: z.string().optional(),
   siteName: z.string().min(1),
+  templateId: z.enum(TEMPLATE_IDS).default("niche-template"),
+  /** Preset niche key or "other". */
   niche: z.string().optional(),
+  nicheCustom: z.string().optional(),
   tone: z.string().optional(),
+  /** Selected design system preset id, or "custom". */
+  designSystemId: z.string().optional(),
+  /** Whether user uploaded/provided a logo (affects branding flow). */
+  hasLogo: z.boolean().optional(),
+  /** Generated at build time — not a wizard input. */
   description: z.string().optional(),
   theme: NicheThemeSchema.partial().optional(),
   logo: z.string().optional(),
   favicon: z.string().optional(),
   social: z.array(SocialLinkSchema).optional(),
+  /** Generated content — populated by derive / generate-site, not wizard inputs. */
   hero: z
     .object({
       title: z.string().optional(),
@@ -162,6 +185,7 @@ export const BuilderDraftSchema = z.object({
     .optional(),
   categories: z.array(BuilderCategorySchema).optional(),
   articles: z.array(BuilderArticleSchema).optional(),
+  enabledPages: EnabledPagesSchema.optional(),
   sidebar: z
     .object({
       about: z.string().optional(),
@@ -175,6 +199,7 @@ export const BuilderDraftSchema = z.object({
       copyright: z.string().optional(),
     })
     .optional(),
+  /** Generated page copy — keyed by page id. */
   pages: z
     .object({
       about: z.string().optional(),
@@ -207,6 +232,24 @@ export function slugify(input: string): string {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/(^-|-$)/g, "")
     .slice(0, 60) || "site";
+}
+
+export const DEFAULT_ENABLED_PAGES = {
+  about: true,
+  faq: false,
+  privacy: true,
+  terms: true,
+  contact: true,
+} as const;
+
+export function createDefaultDraft(): Partial<BuilderDraft> {
+  return {
+    templateId: "niche-template",
+    tone: "professional",
+    designSystemId: "forest",
+    enabledPages: { ...DEFAULT_ENABLED_PAGES },
+    categories: [],
+  };
 }
 
 export function pascalCase(slug: string): string {

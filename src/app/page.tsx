@@ -18,25 +18,25 @@ export default function HomePage() {
               </span>
             </div>
             <h1>
-              Website recreations, built for{" "}
-              <span className="grad-text">client review</span>
+              Website templates, built for{" "}
+              <span className="grad-text">fast development</span>
             </h1>
             <p className="sg-hero__sub">
-              Browse polished Next.js ports of HTML templates from one gallery — or open SCAI Studio to
-              draft and publish niche sites with AI.
+              Production-ready Next.js templates you can clone and ship — or open SCAI Studio to
+              generate a fully branded niche site with AI and publish in minutes.
             </p>
             <div className="sg-hero__cta">
-              <Link href="/demos" className="btn btn--primary btn--lg">
-                Open project demos
+              <Link href="/templates" className="btn btn--primary btn--lg">
+                Browse templates
               </Link>
               <Link href="/studio" className="btn btn--outline btn--lg">
                 SCAI Studio
               </Link>
             </div>
             <ul className="sg-home__list">
-              <li>Dark SCAI design system across gallery and studio</li>
+              <li>Reusable templates for every new project</li>
               <li>AI-powered site builder at /studio</li>
-              <li>One gallery link covering every recreated site</li>
+              <li>SCAI design system across library and studio</li>
             </ul>
           </div>
         </div>

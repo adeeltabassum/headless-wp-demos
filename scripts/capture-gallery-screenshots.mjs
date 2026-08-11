@@ -8,9 +8,8 @@ const outDir = path.join(__dirname, "../public/gallery/screenshots");
 fs.mkdirSync(outDir, { recursive: true });
 
 const pages = [
+  { id: "niche-template", url: "http://localhost:3000/niche-template" },
   { id: "local", url: "http://localhost:3000/local" },
-  { id: "niche-blog", url: "http://localhost:3000/niche-blog" },
-  { id: "grub-gadget", url: "http://localhost:3000/grub-gadget" },
   { id: "saas", url: "http://localhost:3000/saas" },
 ];
 

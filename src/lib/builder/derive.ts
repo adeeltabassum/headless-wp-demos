@@ -8,7 +8,8 @@ import type {
   SocialLink,
   StaticPageData,
 } from "@/lib/niche-template/content";
-import { type BuilderDraft, slugify } from "./schema";
+import { type BuilderDraft, slugify, DEFAULT_ENABLED_PAGES } from "./schema";
+import { getNicheLabel, getToneLabel } from "./presets";
 
 function splitPageParagraphs(text: string): string[] {
   return text
@@ -17,22 +18,44 @@ function splitPageParagraphs(text: string): string[] {
     .filter(Boolean);
 }
 
-const STATIC_PAGES: Array<{ key: keyof NonNullable<BuilderDraft["pages"]>; slug: string; title: string }> = [
-  { key: "about", slug: "about", title: "About" },
-  { key: "faq", slug: "faq", title: "FAQ" },
-  { key: "privacy", slug: "privacy-policy", title: "Privacy Policy" },
-  { key: "terms", slug: "terms", title: "Terms and Conditions" },
+const STATIC_PAGE_DEFS: Array<{
+  key: keyof NonNullable<BuilderDraft["pages"]>;
+  enabledKey: keyof typeof DEFAULT_ENABLED_PAGES;
+  slug: string;
+  title: string;
+}> = [
+  { key: "about", enabledKey: "about", slug: "about", title: "About" },
+  { key: "faq", enabledKey: "faq", slug: "faq", title: "FAQ" },
+  { key: "privacy", enabledKey: "privacy", slug: "privacy-policy", title: "Privacy Policy" },
+  { key: "terms", enabledKey: "terms", slug: "terms", title: "Terms and Conditions" },
 ];
 
+function buildMetaDescription(draft: BuilderDraft): string {
+  const niche = getNicheLabel(draft.niche, draft.nicheCustom);
+  const tone = getToneLabel(draft.tone).toLowerCase();
+  return `${draft.siteName} — your ${tone} guide to ${niche.toLowerCase()}. Expert tips, guides, and resources.`;
+}
+
+function buildHeroCopy(draft: BuilderDraft) {
+  const niche = getNicheLabel(draft.niche, draft.nicheCustom);
+  return {
+    title: draft.hero?.title || `Welcome to ${draft.siteName}`,
+    subtitle:
+      draft.hero?.subtitle ||
+      `Your trusted resource for ${niche.toLowerCase()} — guides, tips, and expert advice.`,
+    button: draft.hero?.button || "Start Here",
+  };
+}
+
 /**
- * Expands the small, human-friendly BuilderDraft into a complete, valid
- * NicheTemplateContent — deriving all the boilerplate (nav, offcanvas,
- * footer links, sidebar tags, category tiles) from the few real inputs a
- * non-technical user actually provides, so the chat/form never has to ask
- * about wiring, only content.
+ * Expands the wizard configuration into full NicheTemplateContent.
+ * Text, meta, hero, and page copy are generated here when not already present.
  */
 export function deriveContent(draft: BuilderDraft): NicheTemplateContent {
   const base = `/${draft.slug}`;
+  const enabled = { ...DEFAULT_ENABLED_PAGES, ...draft.enabledPages };
+  const nicheLabel = getNicheLabel(draft.niche, draft.nicheCustom);
+
   const categories: Category[] = (draft.categories?.length ? draft.categories : [
     { label: "Getting Started", slug: "getting-started" },
   ]).map((c) => {
@@ -56,16 +79,22 @@ export function deriveContent(draft: BuilderDraft): NicheTemplateContent {
     href: `${base}/category/${c.slug}`,
   }));
 
-  const offcanvas = STATIC_PAGES.map((p) => ({
-    label: p.title,
-    href: `${base}/page/${p.slug}`,
-  })).concat([{ label: "Contact", href: `${base}/page/contact` }]);
+  const offcanvasLinks: Array<{ label: string; href: string }> = [];
+  for (const p of STATIC_PAGE_DEFS) {
+    if (enabled[p.enabledKey]) {
+      offcanvasLinks.push({ label: p.title, href: `${base}/page/${p.slug}` });
+    }
+  }
+  if (enabled.contact) {
+    offcanvasLinks.push({ label: "Contact", href: `${base}/page/contact` });
+  }
 
   const articles: Article[] = (draft.articles?.length ? draft.articles : []).map((a, i) => {
     const slug = a.slug ? slugify(a.slug) : slugify(a.title);
-    const categorySlug = categories.find(
-      (c) => c.slug === a.category || c.label.toLowerCase() === a.category.toLowerCase()
-    )?.slug || categories[0].slug;
+    const categorySlug =
+      categories.find(
+        (c) => c.slug === a.category || c.label.toLowerCase() === a.category.toLowerCase()
+      )?.slug || categories[0].slug;
     return {
       id: a.id || String(i + 1),
       title: a.title,
@@ -77,32 +106,50 @@ export function deriveContent(draft: BuilderDraft): NicheTemplateContent {
     };
   });
 
-  const pages: StaticPageData[] = STATIC_PAGES.map(
+  const pages: StaticPageData[] = STATIC_PAGE_DEFS.filter((p) => enabled[p.enabledKey]).map(
     (p): StaticPageData => ({
       slug: p.slug,
       title: p.title,
       bannerTitle: p.title,
       description: `${p.title} — ${draft.siteName}`,
       banner: IMAGE_SLOTS.pageBanner.placeholder,
-      content: draft.pages?.[p.key] ? splitPageParagraphs(draft.pages[p.key] as string) : [`${p.title} content coming soon.`],
+      content: draft.pages?.[p.key]
+        ? splitPageParagraphs(draft.pages[p.key] as string)
+        : [
+            `${draft.siteName} is dedicated to ${nicheLabel.toLowerCase()}. This ${p.title.toLowerCase()} page will be expanded with full content at publish time.`,
+          ],
     })
-  ).concat([
-    {
+  );
+
+  if (enabled.contact) {
+    pages.push({
       slug: "contact",
       title: "Contact",
       bannerTitle: "Contact",
       description: `Get in touch with ${draft.siteName}.`,
       banner: IMAGE_SLOTS.pageBanner.placeholder,
-      intro: draft.pages?.contactIntro || "Send us a message and we'll get back to you soon.",
-    },
-  ]);
+      intro:
+        draft.pages?.contactIntro ||
+        `Have a question about ${nicheLabel.toLowerCase()}? Send us a message and we'll get back to you soon.`,
+    });
+  }
+
+  const heroCopy = buildHeroCopy(draft);
+  const footerLinks: Array<{ label: string; href: string }> = [];
+  if (enabled.about) footerLinks.push({ label: "About", href: `${base}/page/about` });
+  if (enabled.privacy) footerLinks.push({ label: "Privacy Policy", href: `${base}/page/privacy-policy` });
+  if (enabled.terms) footerLinks.push({ label: "Terms and Conditions", href: `${base}/page/terms` });
+
+  const featuredLinks: Array<{ label: string; href: string }> = [];
+  if (enabled.faq) featuredLinks.push({ label: "FAQ", href: `${base}/page/faq` });
+  if (enabled.contact) featuredLinks.push({ label: "Contact", href: `${base}/page/contact` });
 
   return {
     siteName: draft.siteName,
     siteBase: base,
     metadata: {
-      title: draft.siteName,
-      description: draft.description || `${draft.siteName} — ${draft.niche || "a niche resource"}.`,
+      title: `${draft.siteName} | ${nicheLabel}`,
+      description: draft.description || buildMetaDescription(draft),
     },
     logo: draft.logo || IMAGE_SLOTS.logo.placeholder,
     favicon: draft.favicon || IMAGE_SLOTS.favicon.placeholder,
@@ -113,11 +160,9 @@ export function deriveContent(draft: BuilderDraft): NicheTemplateContent {
           { icon: "instagram", label: "Instagram", href: "#" },
         ] satisfies SocialLink[]),
     nav,
-    offcanvas,
+    offcanvas: offcanvasLinks,
     hero: {
-      title: draft.hero?.title || `Welcome to ${draft.siteName}`,
-      subtitle: draft.hero?.subtitle,
-      button: draft.hero?.button || "Start Here",
+      ...heroCopy,
       href: `${base}/category/${categories[0].slug}`,
       background: draft.hero?.background || IMAGE_SLOTS.hero.placeholder,
     },
@@ -125,27 +170,26 @@ export function deriveContent(draft: BuilderDraft): NicheTemplateContent {
     categories,
     articles,
     sidebar: {
-      about: draft.sidebar?.about || `${draft.siteName} is your go-to resource for ${draft.niche || "this topic"}.`,
-      legal: draft.sidebar?.legal || `${draft.siteName} participates in affiliate programs and may earn from qualifying purchases.`,
+      about:
+        draft.sidebar?.about ||
+        `${draft.siteName} is your go-to resource for ${nicheLabel.toLowerCase()}.`,
+      legal:
+        draft.sidebar?.legal ||
+        `${draft.siteName} participates in affiliate programs and may earn from qualifying purchases.`,
       privacyHref: `${base}/page/privacy-policy`,
       tags: draft.sidebar?.tags?.length ? draft.sidebar.tags : categories.map((c) => c.label),
     },
     footer: {
-      featured: [
-        { label: "FAQ", href: `${base}/page/faq` },
-        { label: "Contact", href: `${base}/page/contact` },
-      ],
-      links: [
-        { label: "About", href: `${base}/page/about` },
-        { label: "Privacy Policy", href: `${base}/page/privacy-policy` },
-        { label: "Terms and Conditions", href: `${base}/page/terms` },
-      ],
+      featured: featuredLinks.length ? featuredLinks : [{ label: "Contact", href: `${base}/page/contact` }],
+      links: footerLinks,
       newsletter: {
         text: draft.footer?.newsletterText || "Subscribe for the latest updates.",
         placeholder: "Enter your email address",
         submit: "Subscribe",
       },
-      copyright: draft.footer?.copyright || `© ${new Date().getFullYear()} ${draft.siteName}. All rights reserved.`,
+      copyright:
+        draft.footer?.copyright ||
+        `© ${new Date().getFullYear()} ${draft.siteName}. All rights reserved.`,
     },
     pages,
   };

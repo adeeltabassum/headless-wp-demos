@@ -1,4 +1,5 @@
 import type { WorkingDraft } from "./mergePatch";
+import { createDefaultDraft } from "./schema";
 
 /**
  * Client-side draft persistence — localStorage today, but the record shape
@@ -86,7 +87,7 @@ export function createDraft(): DraftRecord {
     id,
     createdAt: Date.now(),
     updatedAt: Date.now(),
-    draft: {},
+    draft: createDefaultDraft(),
     chatHistory: [],
   };
   saveDraft(record);

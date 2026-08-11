@@ -44,21 +44,6 @@ export function PreviewPanel({ draft }: { draft: WorkingDraft }) {
     setPreviewPath(siteBase);
   }, [siteBase]);
 
-  if (!parsed || !parsed.siteName) {
-    return (
-      <div className="builder-preview-frame">
-        <div className="builder-empty">
-          Start the conversation (or fill in the site name on the Draft tab) to see a live preview here.
-        </div>
-      </div>
-    );
-  }
-
-  const content = deriveContent(parsed);
-  const theme = deriveTheme(parsed);
-  const route = parseSitePath(siteBase, previewPath, content);
-  const articlesPath = articleBasePath(siteBase);
-
   const navigate = useCallback((href: string) => {
     setPreviewPath(href);
     frameRef.current?.scrollTo({ top: 0, behavior: "smooth" });
@@ -73,6 +58,21 @@ export function PreviewPanel({ draft }: { draft: WorkingDraft }) {
     }),
     [siteBase, previewPath, navigate]
   );
+
+  if (!parsed || !parsed.siteName) {
+    return (
+      <div className="builder-preview-frame">
+        <div className="builder-empty">
+          Fill in the site name under Business information to see a live preview here.
+        </div>
+      </div>
+    );
+  }
+
+  const content = deriveContent(parsed);
+  const theme = deriveTheme(parsed);
+  const route = parseSitePath(siteBase, previewPath, content);
+  const articlesPath = articleBasePath(siteBase);
 
   function renderMain() {
     switch (route.type) {

@@ -17,6 +17,12 @@ const nextConfig: NextConfig = {
   outputFileTracingIncludes: {
     "/api/builder/sites/[slug]": ["./src/lib/sites/**/content.json"],
   },
+  async redirects() {
+    return [
+      { source: "/demos", destination: "/templates", permanent: true },
+      { source: "/demos/:path*", destination: "/templates/:path*", permanent: true },
+    ];
+  },
 };
 
 export default nextConfig;

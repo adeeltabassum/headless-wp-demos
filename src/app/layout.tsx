@@ -9,8 +9,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Headless WP - Page Recreations",
-  description: "Next.js recreations of HTML page templates",
+  title: "SCAI · Website Templates",
+  description: "Production-ready Next.js templates and SCAI Studio for fast site development.",
 };
 
 export default function RootLayout({

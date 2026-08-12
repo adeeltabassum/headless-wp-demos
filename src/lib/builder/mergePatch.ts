@@ -16,6 +16,10 @@ export function mergeDraftPatch<T extends Record<string, unknown>>(
     if (value === undefined) continue;
     if (Array.isArray(value)) {
       merged[key] = value;
+    } else if (key === "theme" && value && typeof value === "object") {
+      // Palette switches must replace theme wholesale — shallow-merge left
+      // stale Forest colors stuck under Ocean/Ember/Midnight.
+      merged[key] = { ...(value as Record<string, unknown>) };
     } else if (value && typeof value === "object") {
       const existing = merged[key];
       merged[key] = {

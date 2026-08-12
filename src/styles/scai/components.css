@@ -37,7 +37,7 @@
 
 .scai .btn--primary {
   background: var(--scai-grad);
-  color: #030303;
+  color: var(--scai-on-primary);
   font-weight: 700;
   border: 0;
   box-shadow: var(--scai-shadow-glow);
@@ -77,7 +77,7 @@
 
 .scai .btn--outline:hover:not(:disabled) {
   background: var(--scai-grad);
-  color: #030303;
+  color: var(--scai-on-primary);
 }
 
 .scai .btn--danger {
@@ -115,7 +115,7 @@
 
 .scai .badge--solid {
   background: var(--scai-grad);
-  color: #030303;
+  color: var(--scai-on-primary);
   font-weight: 700;
 }
 
@@ -166,7 +166,7 @@
   justify-content: center;
   flex: none;
   box-shadow: var(--scai-shadow-glow);
-  color: #030303;
+  color: var(--scai-on-primary);
   font-size: 13px;
   font-weight: 800;
 }

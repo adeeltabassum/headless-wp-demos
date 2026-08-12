@@ -1,14 +1,14 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { localContent } from "@/lib/local/content";
+import { useLocalContent } from "./LocalContentProvider";
 import { PremiumButton } from "./PremiumButton";
 
 const STICKY_OFFSET = 60;
 const DEFAULT_BAR_HEIGHT = 64;
 
-function StickyBarContent() {
-  const { licenses, phone, phoneHref, hero } = localContent;
+function StickyBarContent({ content }: { content: ReturnType<typeof useLocalContent> }) {
+  const { licenses, phone, phoneHref, hero } = content;
 
   return (
     <div className="fb-sticky-bar__inner">
@@ -35,6 +35,7 @@ function StickyBarContent() {
 }
 
 export function StickyBar() {
+  const localContent = useLocalContent();
   const anchorRef = useRef<HTMLDivElement>(null);
   const [docked, setDocked] = useState(true);
   const [jsReady, setJsReady] = useState(false);
@@ -91,14 +92,14 @@ export function StickyBar() {
         className={`fb-sticky-bar fb-sticky-bar--float${showFloat ? " is-fixed" : " is-hidden"}`}
         aria-hidden={!showFloat}
       >
-        <StickyBarContent />
+        <StickyBarContent content={localContent} />
       </div>
       <div
         ref={anchorRef}
         className={`fb-sticky-bar fb-sticky-bar--anchor${showAnchor ? "" : " is-hidden"}`}
         aria-hidden={!showAnchor}
       >
-        <StickyBarContent />
+        <StickyBarContent content={localContent} />
       </div>
     </>
   );

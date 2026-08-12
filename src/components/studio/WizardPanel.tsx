@@ -14,6 +14,15 @@ import {
   suggestTemplateId,
 } from "@/lib/builder/presets";
 import { extractLogoColors, paletteToTheme } from "@/lib/builder/logoColors";
+import {
+  defaultLogoCustomization,
+  matchDesignSystemFromPrimary,
+  renderFaviconFromCustomization,
+  renderLogoFromCustomization,
+} from "@/lib/builder/logoCustomization";
+import { LogoCustomizer } from "./LogoCustomizer";
+import { stockPhotoUrl } from "@/lib/builder/stockPhotos";
+import type { ImageSlotKey } from "@/lib/niche-template/images";
 import { siteTemplates } from "@/lib/templates";
 import type { GenerateImageFn } from "@/lib/builder/imageGenTypes";
 import type { ImagePromptContext } from "@/lib/builder/geminiImage";
@@ -33,19 +42,33 @@ export interface WizardPanelProps {
   draft: WorkingDraft;
   onChange: (patch: Partial<WorkingDraft>) => void;
   onGenerateImage: GenerateImageFn;
+  onGenerateSite?: () => Promise<void>;
   busyKey: string | null;
+  generatingSite?: boolean;
+  generateProgress?: string;
 }
 
 function applyDesignSystem(draft: WorkingDraft, presetId: string): Partial<WorkingDraft> {
   if (presetId === "custom") return { designSystemId: "custom" };
   const preset = DESIGN_SYSTEM_PRESETS.find((p) => p.id === presetId);
   if (!preset) return { designSystemId: presetId };
-  return { designSystemId: presetId, theme: { ...draft.theme, ...preset.theme } };
+  // Replace theme wholesale so a previous palette cannot "stick"
+  return { designSystemId: presetId, theme: { ...preset.theme } };
 }
 
-export function WizardPanel({ draft, onChange, onGenerateImage, busyKey }: WizardPanelProps) {
+export function WizardPanel({
+  draft,
+  onChange,
+  onGenerateImage,
+  onGenerateSite,
+  busyKey,
+  generatingSite,
+  generateProgress,
+}: WizardPanelProps) {
   const [step, setStep] = useState<StepId>("business");
-  const [logoMode, setLogoMode] = useState<"upload" | "skip">(draft.hasLogo ? "upload" : "skip");
+  const [logoMode, setLogoMode] = useState<"upload" | "generate">(draft.hasLogo ? "upload" : "generate");
+  const [showLogoCustomizer, setShowLogoCustomizer] = useState(!draft.hasLogo && !!draft.designSystemId);
+  const [logoSuggestedPreset, setLogoSuggestedPreset] = useState<string | null>(null);
   const [customThemeOpen, setCustomThemeOpen] = useState(draft.designSystemId === "custom");
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -94,34 +117,79 @@ export function WizardPanel({ draft, onChange, onGenerateImage, busyKey }: Wizar
     const reader = new FileReader();
     reader.onload = async () => {
       const dataUrl = reader.result as string;
-      onChange({ logo: dataUrl, hasLogo: true });
       try {
         const palette = await extractLogoColors(dataUrl);
+        const themePatch = paletteToTheme(palette);
+        const matched = matchDesignSystemFromPrimary(palette.primary, DESIGN_SYSTEM_PRESETS);
+        setLogoSuggestedPreset(matched);
+        const favicon = renderFaviconFromCustomization(
+          defaultLogoCustomization(draft.siteName || "Site", palette.primary)
+        );
+        onChange({
+          logo: dataUrl,
+          favicon,
+          hasLogo: true,
+          designSystemId: "from-logo",
+          theme: { ...themePatch },
+        });
+      } catch {
+        // Still apply the uploaded logo even if color extraction fails
+        const primary = draft.theme?.primary || defaultNicheTheme.primary;
         onChange({
           logo: dataUrl,
           hasLogo: true,
           designSystemId: "from-logo",
-          theme: { ...draft.theme, ...paletteToTheme(palette) },
+          favicon: renderFaviconFromCustomization(defaultLogoCustomization(draft.siteName || "Site", primary)),
         });
-      } catch {
-        // Logo still saved; theme unchanged
       }
+    };
+    reader.onerror = () => {
+      // no-op — user can retry
     };
     reader.readAsDataURL(file);
   }
 
-  async function generateFavicon() {
+  async function generateFaviconFromTheme(primary?: string) {
+    const color = primary || theme.primary;
     try {
       const result = await onGenerateImage(
         "favicon",
-        { ...imgCtx, label: "favicon" },
+        { ...imgCtx, label: "favicon", primaryColor: color },
         "image:favicon",
         { localOnly: true }
       );
       onChange({ favicon: result.url });
     } catch {
-      // StudioApp shows error banner
+      // ignore
     }
+  }
+
+  function selectDesignSystem(presetId: string) {
+    const preset = DESIGN_SYSTEM_PRESETS.find((p) => p.id === presetId);
+    const primary = preset?.theme.primary || theme.primary;
+    const custom = defaultLogoCustomization(draft.siteName || "My Site", primary);
+    const logoUrl = renderLogoFromCustomization(custom);
+    const faviconUrl = renderFaviconFromCustomization(custom);
+    onChange({
+      ...applyDesignSystem(draft, presetId),
+      logoCustomization: custom,
+      logo: logoUrl,
+      favicon: faviconUrl,
+      hasLogo: false,
+    });
+    setShowLogoCustomizer(true);
+  }
+
+  function applyLogoCustomization(logoUrl: string, faviconUrl: string) {
+    onChange({ logo: logoUrl, favicon: faviconUrl, logoCustomization: draft.logoCustomization, hasLogo: false });
+  }
+
+  async function addStockHero() {
+    const url = stockPhotoUrl(draft.siteName || "hero", draft.niche, "hero" as ImageSlotKey);
+    onChange({
+      templateImages: { ...draft.templateImages, hero: url, heroBackground: url },
+      hero: { ...draft.hero, background: url },
+    });
   }
 
   function setCategory(i: number, patch: Partial<BuilderCategory>) {
@@ -307,13 +375,31 @@ export function WizardPanel({ draft, onChange, onGenerateImage, busyKey }: Wizar
                 <input
                   type="radio"
                   name="logoMode"
-                  checked={logoMode === "skip"}
+                  checked={logoMode === "generate"}
                   onChange={() => {
-                    setLogoMode("skip");
-                    onChange({ hasLogo: false });
+                    setLogoMode("generate");
+                    const first = suggestDesignSystems(draft.niche)[0];
+                    if (first) {
+                      const custom = defaultLogoCustomization(
+                        draft.siteName || "My Site",
+                        first.theme.primary || "#2d6a3e"
+                      );
+                      onChange({
+                        hasLogo: false,
+                        designSystemId: first.id,
+                        theme: { ...first.theme },
+                        logoCustomization: custom,
+                        logo: renderLogoFromCustomization(custom),
+                        favicon: renderFaviconFromCustomization(custom),
+                      });
+                      setShowLogoCustomizer(true);
+                    } else {
+                      onChange({ hasLogo: false });
+                      setShowLogoCustomizer(false);
+                    }
                   }}
                 />
-                No logo yet — pick a design system
+                No logo yet — generate from brand colors
               </label>
             </div>
           </div>
@@ -348,7 +434,25 @@ export function WizardPanel({ draft, onChange, onGenerateImage, busyKey }: Wizar
             </div>
           )}
 
-          {logoMode === "skip" && (
+          {logoMode === "upload" && logoSuggestedPreset && (
+            <p className="hint builder-notice">
+              Suggested design system from your logo:{" "}
+              <strong>{DESIGN_SYSTEM_PRESETS.find((p) => p.id === logoSuggestedPreset)?.name || logoSuggestedPreset}</strong>
+              <button
+                type="button"
+                className="builder-btn builder-btn--sm"
+                style={{ marginLeft: 8 }}
+                onClick={() => {
+                  const patch = applyDesignSystem(draft, logoSuggestedPreset);
+                  onChange(patch);
+                }}
+              >
+                Apply palette
+              </button>
+            </p>
+          )}
+
+          {logoMode === "generate" && (
             <>
               <p className="hint">Pick one of four palettes suggested from your business information.</p>
               <div className="builder-design-grid">
@@ -357,7 +461,7 @@ export function WizardPanel({ draft, onChange, onGenerateImage, busyKey }: Wizar
                     key={preset.id}
                     type="button"
                     className={`builder-design-card${draft.designSystemId === preset.id ? " is-selected" : ""}`}
-                    onClick={() => onChange(applyDesignSystem(draft, preset.id))}
+                    onClick={() => selectDesignSystem(preset.id)}
                   >
                     <div className="builder-design-card__swatches">
                       {preset.swatches.map((c) => (
@@ -402,6 +506,34 @@ export function WizardPanel({ draft, onChange, onGenerateImage, busyKey }: Wizar
             </div>
           )}
 
+          {logoMode === "generate" && showLogoCustomizer && draft.siteName && (
+            <div className="builder-field" style={{ marginTop: 16 }}>
+              <label>Customize generated logo</label>
+              <LogoCustomizer
+                siteName={draft.siteName}
+                customization={
+                  draft.logoCustomization ||
+                  defaultLogoCustomization(draft.siteName, theme.primary)
+                }
+                onChange={(custom) => onChange({ logoCustomization: custom })}
+                onApply={applyLogoCustomization}
+              />
+            </div>
+          )}
+
+          <div className="builder-field">
+            <label>Site images</label>
+            <p className="hint">Hero and section images use free stock photos for now.</p>
+            <button type="button" className="builder-btn builder-btn--sm" onClick={() => void addStockHero()}>
+              Add hero stock photo
+            </button>
+            {(draft.templateImages?.hero || draft.hero?.background) && (
+              <span className="hint" style={{ display: "block", marginTop: 8 }}>
+                Hero image set
+              </span>
+            )}
+          </div>
+
           <div className="builder-image-slot" style={{ marginTop: 12 }}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
@@ -417,9 +549,9 @@ export function WizardPanel({ draft, onChange, onGenerateImage, busyKey }: Wizar
               type="button"
               className="builder-btn builder-btn--sm"
               disabled={busyKey === "image:favicon"}
-              onClick={() => void generateFavicon()}
+              onClick={() => void generateFaviconFromTheme()}
             >
-              {busyKey === "image:favicon" ? "Generating…" : "Generate favicon"}
+              {busyKey === "image:favicon" ? "Generating…" : "Regenerate favicon"}
             </button>
           </div>
 
@@ -505,7 +637,19 @@ export function WizardPanel({ draft, onChange, onGenerateImage, busyKey }: Wizar
             <button type="button" className="builder-btn builder-btn--ghost" onClick={goBack}>
               Back
             </button>
-            <span className="hint">Use Live Preview → then Publish when ready.</span>
+            <div className="builder-inline-actions">
+              {onGenerateSite && (
+                <button
+                  type="button"
+                  className="builder-btn builder-btn--primary"
+                  disabled={!!generatingSite || !draft.siteName}
+                  onClick={() => void onGenerateSite()}
+                >
+                  {generatingSite ? "Generating…" : "Generate site content"}
+                </button>
+              )}
+              {generateProgress && <span className="hint">{generateProgress}</span>}
+            </div>
           </div>
         </section>
       )}

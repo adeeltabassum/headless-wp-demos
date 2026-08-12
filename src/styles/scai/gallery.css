@@ -1,4 +1,7 @@
-/* SCAI Design System — gallery / marketing shell */
+/* SCAI Design System — gallery / marketing shell
+ * Imported by / and /templates. Keep this file free of studio.css imports
+ * so Turbopack never conflates marketing + builder stylesheets.
+ */
 @import "./tokens.css";
 @import "./components.css";
 

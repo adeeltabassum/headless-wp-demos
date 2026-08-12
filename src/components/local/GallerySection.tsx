@@ -1,7 +1,10 @@
+"use client";
+
 import Image from "next/image";
-import { localContent } from "@/lib/local/content";
+import { useLocalContent } from "./LocalContentProvider";
 
 export function GallerySection() {
+  const localContent = useLocalContent();
   const { gallery } = localContent;
 
   return (

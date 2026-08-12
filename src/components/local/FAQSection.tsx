@@ -1,4 +1,6 @@
-import { localContent } from "@/lib/local/content";
+"use client";
+
+import { useLocalContent } from "./LocalContentProvider";
 
 function PlusIcon() {
   return (
@@ -17,6 +19,7 @@ function MinusIcon() {
 }
 
 export function FAQSection() {
+  const localContent = useLocalContent();
   const { faq } = localContent;
 
   return (

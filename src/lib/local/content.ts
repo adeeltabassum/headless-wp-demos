@@ -195,3 +195,5 @@ export const localContent = {
     privacy: "/privacy-policy",
   },
 } as const;
+
+export type LocalContent = typeof localContent;

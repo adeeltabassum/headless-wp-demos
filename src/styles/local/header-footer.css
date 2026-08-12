@@ -5,6 +5,7 @@
   --fb-white: #ffffff;
   --fb-black: #000000;
   --fb-dark: #1f2124;
+  --fb-heading: #111827;
   --fb-text: #636363;
   --fb-border: #e2e8f0;
   --fb-bg-soft: #fafafa;
@@ -150,7 +151,7 @@
   font-size: 1rem;
   font-weight: 500;
   line-height: 1.5;
-  color: #111827;
+  color: var(--fb-heading, #111827);
   text-decoration: none;
   transition: color 0.3s ease;
   white-space: nowrap;

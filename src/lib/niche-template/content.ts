@@ -1,4 +1,5 @@
 import type { SocialIconKey } from "./images";
+import type { ContentBlock } from "@/lib/builder/contentBlocks";
 
 /**
  * Content contract for the niche blog master template.
@@ -25,7 +26,9 @@ export interface Article {
   image: string;
   slug: string;
   category: string;
-  /** Optional long-form body for the single-article page. Falls back to excerpt-only. */
+  /** Preferred: typed blocks for the single-article page. */
+  blocks?: ContentBlock[];
+  /** Legacy flat strings — normalized to blocks at render time. */
   content?: string[];
 }
 
@@ -50,6 +53,9 @@ export interface StaticPageData {
   description: string;
   banner?: string;
   intro?: string;
+  /** Preferred: typed blocks. */
+  blocks?: ContentBlock[];
+  /** Legacy flat strings — normalized to blocks at render time. */
   content?: string[];
 }
 

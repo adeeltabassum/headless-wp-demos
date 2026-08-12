@@ -2,7 +2,9 @@
 
 import { NicheTemplatePageBanner } from "./PageBanner";
 import { NicheTemplateSidebar } from "./Sidebar";
+import { ContentBlocks } from "./ContentBlocks";
 import { IMAGE_SLOTS } from "@/lib/niche-template/images";
+import { resolvePageBlocks } from "@/lib/builder/contentBlocks";
 import type { NicheTemplateContent, StaticPageData } from "@/lib/niche-template/content";
 
 export function NicheTemplateContactPage({
@@ -12,6 +14,13 @@ export function NicheTemplateContactPage({
   content: NicheTemplateContent;
   page: StaticPageData;
 }) {
+  const introBlocks = resolvePageBlocks({
+    blocks: page.blocks,
+    content: page.content,
+    intro: page.intro,
+    title: page.title,
+  }).filter((b) => b.type === "paragraph" || b.type === "heading");
+
   return (
     <>
       <NicheTemplatePageBanner title={page.bannerTitle} background={page.banner ?? IMAGE_SLOTS.pageBanner.placeholder} />
@@ -20,7 +29,7 @@ export function NicheTemplateContactPage({
         <div className="nt-container">
           <div className="nt-content-grid">
             <div>
-              {page.intro && <p style={{ marginBottom: 24, color: "var(--nt-muted)" }}>{page.intro}</p>}
+              {introBlocks.length > 0 ? <ContentBlocks blocks={introBlocks} /> : null}
               <form className="nt-form" onSubmit={(e) => e.preventDefault()}>
                 <div className="nt-form__row">
                   <label htmlFor="contact-name">

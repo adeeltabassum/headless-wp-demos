@@ -1,6 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { localContent } from "@/lib/local/content";
+import { useLocalContent } from "./LocalContentProvider";
 import { PremiumButton } from "./PremiumButton";
 
 function ServiceCard({
@@ -40,6 +42,7 @@ function ServiceCard({
 }
 
 export function ServicesSection() {
+  const localContent = useLocalContent();
   const { services } = localContent;
 
   return (

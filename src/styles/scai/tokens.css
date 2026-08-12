@@ -29,6 +29,10 @@
   --scai-primary-dark: #2fd9b0;
   --scai-primary-darker: #22c4a0;
   --scai-primary-tint: rgba(64, 237, 195, 0.1);
+  /* Interactive chrome (Studio UI) */
+  --scai-on-primary: #030303;
+  --scai-accent-hover: var(--scai-primary-dark);
+  --scai-focus-ring: rgba(64, 237, 195, 0.45);
   --fn-success: #34d399;
   --fn-warning: #fbbf24;
   --fn-danger: #f87171;
@@ -88,23 +92,69 @@
   text-decoration: none;
 }
 
-/* Niche template preview lives inside SCAI studio — restore its own link/text colors */
+/*
+ * Niche / local / saas previews live inside .scai (Studio). Do NOT paint
+ * SCAI white headings onto those light templates — that was the invisible
+ * white-on-white heading bug. Template roots own their text colors.
+ */
 .scai .nt-page {
-  color: var(--nt-text);
+  color: var(--nt-text, #2b2b2b);
 }
 
 .scai .nt-page a {
   color: inherit;
 }
 
-.scai h1,
-.scai h2,
-.scai h3,
-.scai h4 {
+/*
+ * Do NOT force all headings to --nt-text. That painted dark text onto
+ * dark ink regions (footer / hero overlays / banners). Ink surfaces own
+ * their heading color via --nt-on-ink.
+ */
+.scai .nt-page .nt-footer,
+.scai .nt-page .nt-footer h1,
+.scai .nt-page .nt-footer h2,
+.scai .nt-page .nt-footer h3,
+.scai .nt-page .nt-footer h4,
+.scai .nt-page .nt-footer__heading {
+  color: var(--nt-on-ink, #ffffff);
+}
+
+.scai .nt-page .nt-topbar,
+.scai .nt-page .nt-topbar h1,
+.scai .nt-page .nt-topbar h2,
+.scai .nt-page .nt-topbar h3 {
+  color: var(--nt-on-ink, #ffffff);
+}
+
+.scai .nt-page .nt-hero__content {
+  color: var(--nt-on-ink, #ffffff);
+}
+
+.scai .nt-page .nt-hero__content h1,
+.scai .nt-page .nt-hero__content h2,
+.scai .nt-page .nt-banner__title {
+  color: var(--nt-on-ink, #ffffff);
+}
+
+.scai .nt-page .nt-category-heading,
+.scai .nt-page .nt-category-heading h2 {
+  color: var(--nt-on-primary, #ffffff);
+}
+
+/*
+ * Studio / gallery chrome headings only. No blanket `.scai h1` rule —
+ * that previously overrode niche-template prose after tokens.css loaded.
+ */
+.scai-studio .builder-gate__card h1,
+.scai-studio .builder-dashboard__head h1,
+.scai-studio .builder-dashboard h2,
+.scai-studio .builder-section h2,
+.scai-gallery h1,
+.scai-gallery h2,
+.scai-gallery h3 {
   font-family: var(--font-head);
   color: var(--scai-text);
   letter-spacing: -0.5px;
-  margin: 0;
 }
 
 .scai p {

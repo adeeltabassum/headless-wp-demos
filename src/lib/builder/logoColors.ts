@@ -79,9 +79,17 @@ export async function extractLogoColors(src: string): Promise<ExtractedPalette> 
 }
 
 export function paletteToTheme(palette: ExtractedPalette): Partial<import("@/lib/niche-template/theme").NicheTheme> {
+  const hex = palette.primary.replace("#", "");
+  let onPrimary = "#ffffff";
+  if (hex.length === 6) {
+    const r = parseInt(hex.slice(0, 2), 16);
+    const g = parseInt(hex.slice(2, 4), 16);
+    const b = parseInt(hex.slice(4, 6), 16);
+    if (luminance(r, g, b) > 0.65) onPrimary = "#111111";
+  }
   return {
     primary: palette.primary,
-    onPrimary: "#ffffff",
+    onPrimary,
     background: palette.background,
     surface: palette.surface,
     text: palette.text,

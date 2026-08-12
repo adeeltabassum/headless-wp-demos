@@ -3,27 +3,25 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { WizardPanel } from "./WizardPanel";
-import { PreviewPanel } from "./PreviewPanel";
+import { TemplatePreviewPanel } from "./TemplatePreviewPanel";
 import { createDraft, loadDraft, saveDraft, type DraftRecord } from "@/lib/builder/draftStorage";
 import { mergeDraftPatch, type WorkingDraft } from "@/lib/builder/mergePatch";
 import type { ImagePromptContext } from "@/lib/builder/geminiImage";
 import type { ImageGenOptions, ImageGenResult } from "@/lib/builder/imageGenTypes";
 import type { ImageSlotKey } from "@/lib/niche-template/images";
-import {
-  DESIGN_SYSTEM_PRESETS,
-  domainToSlug,
-} from "@/lib/builder/presets";
+import { DESIGN_SYSTEM_PRESETS, domainToSlug } from "@/lib/builder/presets";
+import { generateSiteContent } from "@/lib/builder/generateSiteContent";
+import { BuilderDraftSchema } from "@/lib/builder/schema";
 
 const LAST_DRAFT_KEY = "builder:last-draft-id";
 
 type PublishState = { state: "idle" | "loading" | "success" | "error"; message?: string };
 
-/** Apply default theme from designSystemId if theme is empty. */
 function ensureTheme(draft: WorkingDraft): WorkingDraft {
   if (draft.theme?.primary) return draft;
   const preset = DESIGN_SYSTEM_PRESETS.find((p) => p.id === (draft.designSystemId || "forest"));
   if (!preset) return draft;
-  return { ...draft, theme: { ...draft.theme, ...preset.theme } };
+  return { ...draft, theme: { ...preset.theme } };
 }
 
 export function StudioApp() {
@@ -32,6 +30,8 @@ export function StudioApp() {
   const [busyKey, setBusyKey] = useState<string | null>(null);
   const [publishStatus, setPublishStatus] = useState<PublishState>({ state: "idle" });
   const [imageStatus, setImageStatus] = useState<PublishState>({ state: "idle" });
+  const [generatingSite, setGeneratingSite] = useState(false);
+  const [generateProgress, setGenerateProgress] = useState("");
 
   useEffect(() => {
     const lastId = window.localStorage.getItem(LAST_DRAFT_KEY);
@@ -87,6 +87,35 @@ export function StudioApp() {
     }
   }
 
+  async function generateSite() {
+    if (!record) return;
+    const draft = ensureTheme(record.draft);
+    const slug = draft.slug || domainToSlug(draft.domain || draft.siteName || "");
+    const parsed = BuilderDraftSchema.safeParse({ ...draft, slug, siteName: draft.siteName || "Site" });
+    if (!parsed.success) {
+      setImageStatus({ state: "error", message: "Complete business information before generating." });
+      return;
+    }
+
+    setGeneratingSite(true);
+    setGenerateProgress("Starting…");
+    try {
+      const patch = await generateSiteContent(parsed.data, (p) => {
+        setGenerateProgress(p.step);
+      });
+      updateDraft(patch);
+      setImageStatus({ state: "success", message: "Site content and stock images generated." });
+      setGenerateProgress("Done");
+    } catch (err) {
+      setImageStatus({
+        state: "error",
+        message: err instanceof Error ? err.message : "Site generation failed.",
+      });
+    } finally {
+      setGeneratingSite(false);
+    }
+  }
+
   async function publish() {
     if (!record) return;
     const draft = ensureTheme(record.draft);
@@ -133,7 +162,6 @@ export function StudioApp() {
   if (!record) return null;
 
   const draft = ensureTheme(record.draft);
-  const previewSupported = (draft.templateId || "niche-template") === "niche-template";
 
   return (
     <div className="scai scai-studio builder-app">
@@ -196,29 +224,23 @@ export function StudioApp() {
 
       <div className="builder-main builder-main--wizard">
         <div className="builder-wizard-col">
-          <WizardPanel draft={draft} onChange={updateDraft} onGenerateImage={generateImage} busyKey={busyKey} />
+          <WizardPanel
+            draft={draft}
+            onChange={updateDraft}
+            onGenerateImage={generateImage}
+            onGenerateSite={generateSite}
+            busyKey={busyKey}
+            generatingSite={generatingSite}
+            generateProgress={generateProgress}
+          />
         </div>
         <div className={`builder-preview-col${mobilePreview ? " is-open" : ""}`}>
           <div className="builder-preview-col__head">
             <span className="badge badge--soft">Live Preview</span>
-            {!previewSupported && (
-              <span className="hint">Preview available for Niche Blog template. Publish to deploy other templates.</span>
-            )}
+            <span className="hint">{draft.templateId || "niche-template"} template</span>
           </div>
           <div className="builder-panel builder-panel--preview">
-            {previewSupported ? (
-              <PreviewPanel draft={draft} />
-            ) : (
-              <div className="builder-preview-placeholder">
-                <p>
-                  <strong>{draft.templateId === "local" ? "Flat Bid Moving" : "SAAS Template"}</strong> selected.
-                </p>
-                <p className="hint">
-                  Live preview is available for the Niche Blog master template. Switch to Niche Blog in step 1 to
-                  preview, or publish to generate this template.
-                </p>
-              </div>
-            )}
+            <TemplatePreviewPanel draft={draft} />
           </div>
         </div>
       </div>

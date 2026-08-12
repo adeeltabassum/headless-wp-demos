@@ -1,8 +1,11 @@
+"use client";
+
 import Link from "next/link";
-import { localContent } from "@/lib/local/content";
+import { useLocalContent } from "./LocalContentProvider";
 import { ArrowIcon, GoogleIcon } from "./icons";
 
 export function ReviewsSection() {
+  const localContent = useLocalContent();
   const { reviews } = localContent;
 
   return (

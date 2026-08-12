@@ -8,14 +8,32 @@ import type {
   SocialLink,
   StaticPageData,
 } from "@/lib/niche-template/content";
+import type { ContentBlock } from "./contentBlocks";
 import { type BuilderDraft, slugify, DEFAULT_ENABLED_PAGES } from "./schema";
 import { getNicheLabel, getToneLabel } from "./presets";
+import {
+  renderFaviconFromCustomization,
+  renderLogoFromCustomization,
+} from "./logoCustomization";
 
 function splitPageParagraphs(text: string): string[] {
   return text
     .split(/\n\n+/)
     .map((s) => s.trim())
     .filter(Boolean);
+}
+
+type PageCopy = string | { blocks: ContentBlock[] } | undefined;
+
+function resolveDraftPageCopy(raw: PageCopy): Pick<StaticPageData, "blocks" | "content" | "intro"> {
+  if (!raw) return {};
+  if (typeof raw === "string") {
+    return { content: splitPageParagraphs(raw) };
+  }
+  if (raw.blocks?.length) {
+    return { blocks: raw.blocks };
+  }
+  return {};
 }
 
 const STATIC_PAGE_DEFS: Array<{
@@ -36,6 +54,17 @@ function buildMetaDescription(draft: BuilderDraft): string {
   return `${draft.siteName} — your ${tone} guide to ${niche.toLowerCase()}. Expert tips, guides, and resources.`;
 }
 
+function resolveLogo(draft: BuilderDraft): string {
+  if (draft.logo) return draft.logo;
+  if (draft.logoCustomization) return renderLogoFromCustomization(draft.logoCustomization);
+  return IMAGE_SLOTS.logo.placeholder;
+}
+
+function resolveFavicon(draft: BuilderDraft): string {
+  if (draft.favicon) return draft.favicon;
+  if (draft.logoCustomization) return renderFaviconFromCustomization(draft.logoCustomization);
+  return IMAGE_SLOTS.favicon.placeholder;
+}
 function buildHeroCopy(draft: BuilderDraft) {
   const niche = getNicheLabel(draft.niche, draft.nicheCustom);
   return {
@@ -102,34 +131,45 @@ export function deriveContent(draft: BuilderDraft): NicheTemplateContent {
       image: a.image || IMAGE_SLOTS.articleThumbnail.placeholder,
       slug,
       category: categorySlug,
+      blocks: a.blocks,
       content: a.content,
     };
   });
 
   const pages: StaticPageData[] = STATIC_PAGE_DEFS.filter((p) => enabled[p.enabledKey]).map(
-    (p): StaticPageData => ({
-      slug: p.slug,
-      title: p.title,
-      bannerTitle: p.title,
-      description: `${p.title} — ${draft.siteName}`,
-      banner: IMAGE_SLOTS.pageBanner.placeholder,
-      content: draft.pages?.[p.key]
-        ? splitPageParagraphs(draft.pages[p.key] as string)
-        : [
-            `${draft.siteName} is dedicated to ${nicheLabel.toLowerCase()}. This ${p.title.toLowerCase()} page will be expanded with full content at publish time.`,
-          ],
-    })
+    (p): StaticPageData => {
+      const copy = resolveDraftPageCopy(draft.pages?.[p.key] as PageCopy);
+      const hasCopy = !!(copy.blocks?.length || copy.content?.length);
+      return {
+        slug: p.slug,
+        title: p.title,
+        bannerTitle: p.title,
+        description: `${p.title} — ${draft.siteName}`,
+        banner: IMAGE_SLOTS.pageBanner.placeholder,
+        blocks: copy.blocks,
+        content: hasCopy
+          ? copy.content
+          : [
+              `${draft.siteName} is dedicated to ${nicheLabel.toLowerCase()}. This ${p.title.toLowerCase()} page will be expanded with full content at publish time.`,
+            ],
+      };
+    }
   );
 
   if (enabled.contact) {
+    const contactCopy = resolveDraftPageCopy(draft.pages?.contactIntro as PageCopy);
     pages.push({
       slug: "contact",
       title: "Contact",
       bannerTitle: "Contact",
       description: `Get in touch with ${draft.siteName}.`,
       banner: IMAGE_SLOTS.pageBanner.placeholder,
+      blocks: contactCopy.blocks,
       intro:
-        draft.pages?.contactIntro ||
+        contactCopy.content?.[0] ||
+        (typeof draft.pages?.contactIntro === "string"
+          ? draft.pages.contactIntro
+          : undefined) ||
         `Have a question about ${nicheLabel.toLowerCase()}? Send us a message and we'll get back to you soon.`,
     });
   }
@@ -151,8 +191,8 @@ export function deriveContent(draft: BuilderDraft): NicheTemplateContent {
       title: `${draft.siteName} | ${nicheLabel}`,
       description: draft.description || buildMetaDescription(draft),
     },
-    logo: draft.logo || IMAGE_SLOTS.logo.placeholder,
-    favicon: draft.favicon || IMAGE_SLOTS.favicon.placeholder,
+    logo: resolveLogo(draft),
+    favicon: resolveFavicon(draft),
     social: draft.social?.length
       ? draft.social
       : ([

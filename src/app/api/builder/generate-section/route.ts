@@ -1,6 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import type { ZodTypeAny } from "zod";
-import { SectionSchemas, buildSectionPrompt, type SectionContext, type SectionKey } from "@/lib/builder/sections";
+import {
+  SectionSchemas,
+  buildSectionPrompt,
+  fallbackArticlesPayload,
+  fallbackPagePayload,
+  type SectionContext,
+  type SectionKey,
+} from "@/lib/builder/sections";
 import { friendlyGeminiQuotaError, parseGeminiRetrySeconds } from "@/lib/builder/geminiErrors";
 import { generateStructured, isLlmConfigured } from "@/lib/builder/llm";
 import { mockSection } from "@/lib/builder/mock";
@@ -48,13 +55,23 @@ export async function POST(req: NextRequest) {
     const prompt = buildSectionPrompt(section, context);
     const data = await generateStructured({
       system:
-        "You are a copywriting assistant for a website-building wizard. Always respond with ONLY the requested JSON, no markdown or extra prose.",
+        "You are a copywriting assistant for a website-building wizard. Always respond with ONLY the requested JSON matching the schema. No markdown fences, no prose.",
       messages: [{ role: "user", content: prompt }],
       schema,
     });
     return NextResponse.json({ data });
   } catch (err) {
     console.error("[api/builder/generate-section]", err);
+
+    // After generateStructured's built-in retry, fall back to a minimal valid payload
+    // for structured sections so the UI never receives invalid layout-breaking data.
+    if (section === "articles") {
+      return NextResponse.json({ data: fallbackArticlesPayload(context), fallback: true });
+    }
+    if (section === "page") {
+      return NextResponse.json({ data: fallbackPagePayload(context), fallback: true });
+    }
+
     const raw = err instanceof Error ? err.message : "Section generation failed.";
     const friendly = friendlyGeminiQuotaError(raw, "text");
     const retryAfter = parseGeminiRetrySeconds(raw);

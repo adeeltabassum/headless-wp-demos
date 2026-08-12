@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { SOCIAL_ICON_KEYS } from "@/lib/niche-template/images";
+import { ContentBlockSchema } from "@/lib/builder/contentBlocks";
 
 /**
  * Zod mirrors of the niche-template content contract
@@ -29,6 +30,7 @@ export const ArticleSchema = z.object({
   image: z.string().min(1),
   slug: z.string().min(1),
   category: z.string().min(1),
+  blocks: z.array(ContentBlockSchema).optional(),
   content: z.array(z.string()).optional(),
 });
 
@@ -53,6 +55,7 @@ export const StaticPageDataSchema = z.object({
   description: z.string().min(1),
   banner: z.string().optional(),
   intro: z.string().optional(),
+  blocks: z.array(ContentBlockSchema).optional(),
   content: z.array(z.string()).optional(),
 });
 
@@ -136,6 +139,26 @@ export const EnabledPagesSchema = z.object({
   contact: z.boolean().default(true),
 });
 
+export const LogoWordSchema = z.object({
+  text: z.string().min(1),
+  color: z.string().min(1),
+});
+
+export const LogoCustomizationSchema = z.object({
+  words: z.array(LogoWordSchema).min(1),
+  iconBg: z.string().min(1),
+  iconText: z.string().min(1),
+  faviconBg: z.string().min(1),
+  faviconText: z.string().min(1),
+});
+
+export const TemplateImagesSchema = z.object({
+  hero: z.string().optional(),
+  heroBackground: z.string().optional(),
+  gallery: z.array(z.string()).optional(),
+  services: z.array(z.string()).optional(),
+});
+
 export const BuilderCategorySchema = z.object({
   label: z.string().min(1),
   slug: z.string().min(1).optional(),
@@ -150,6 +173,7 @@ export const BuilderArticleSchema = z.object({
   slug: z.string().min(1).optional(),
   category: z.string().min(1),
   image: z.string().optional(),
+  blocks: z.array(ContentBlockSchema).optional(),
   content: z.array(z.string()).optional(),
 });
 
@@ -173,6 +197,8 @@ export const BuilderDraftSchema = z.object({
   theme: NicheThemeSchema.partial().optional(),
   logo: z.string().optional(),
   favicon: z.string().optional(),
+  logoCustomization: LogoCustomizationSchema.optional(),
+  templateImages: TemplateImagesSchema.optional(),
   social: z.array(SocialLinkSchema).optional(),
   /** Generated content — populated by derive / generate-site, not wizard inputs. */
   hero: z
@@ -199,14 +225,14 @@ export const BuilderDraftSchema = z.object({
       copyright: z.string().optional(),
     })
     .optional(),
-  /** Generated page copy — keyed by page id. */
+  /** Generated page copy — keyed by page id. String = legacy; object = structured blocks. */
   pages: z
     .object({
-      about: z.string().optional(),
-      faq: z.string().optional(),
-      privacy: z.string().optional(),
-      terms: z.string().optional(),
-      contactIntro: z.string().optional(),
+      about: z.union([z.string(), z.object({ blocks: z.array(ContentBlockSchema).min(1) })]).optional(),
+      faq: z.union([z.string(), z.object({ blocks: z.array(ContentBlockSchema).min(1) })]).optional(),
+      privacy: z.union([z.string(), z.object({ blocks: z.array(ContentBlockSchema).min(1) })]).optional(),
+      terms: z.union([z.string(), z.object({ blocks: z.array(ContentBlockSchema).min(1) })]).optional(),
+      contactIntro: z.union([z.string(), z.object({ blocks: z.array(ContentBlockSchema).min(1) })]).optional(),
     })
     .optional(),
 });
@@ -247,6 +273,20 @@ export function createDefaultDraft(): Partial<BuilderDraft> {
     templateId: "niche-template",
     tone: "professional",
     designSystemId: "forest",
+    theme: {
+      primary: "#2d6a3e",
+      onPrimary: "#ffffff",
+      background: "#f5f5f0",
+      surface: "#ffffff",
+      text: "#1a1a1a",
+      muted: "#6b7280",
+      border: "#e5e7eb",
+      ink: "#111111",
+      onInk: "#ffffff",
+      radiusSm: "4px",
+      radiusMd: "8px",
+      radiusLg: "12px",
+    },
     enabledPages: { ...DEFAULT_ENABLED_PAGES },
     categories: [],
   };

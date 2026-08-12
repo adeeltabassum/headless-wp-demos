@@ -12,14 +12,64 @@ function escapeXml(text: string): string {
     .replace(/"/g, "&quot;");
 }
 
-function initials(siteName: string): string {
-  const words = siteName.trim().split(/\s+/).filter(Boolean);
-  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
-  return siteName.slice(0, 2).toUpperCase() || "LG";
+export type LogoWord = { text: string; color: string };
+
+function initialsFromWords(words: LogoWord[]): string {
+  if (words.length >= 2) return (words[0].text[0] + words[1].text[0]).toUpperCase();
+  const joined = words.map((w) => w.text).join("");
+  return joined.slice(0, 2).toUpperCase() || "LG";
 }
 
 function svgDataUrl(svg: string): string {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
+}
+
+function wordSpans(words: LogoWord[], startX: number, y: number, fontSize: number): string {
+  let x = startX;
+  return words
+    .map((w) => {
+      const span = `<tspan x="${x}" fill="${w.color}">${escapeXml(w.text)}</tspan>`;
+      x += w.text.length * (fontSize * 0.55) + fontSize * 0.35;
+      return span;
+    })
+    .join("");
+}
+
+export function buildCustomLogoSvgDataUrl(
+  words: LogoWord[],
+  iconBg: string,
+  iconText: string
+): string {
+  const mark = escapeXml(initialsFromWords(words));
+  const nameSpans = wordSpans(words, 88, 52, 22);
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="320" height="88" viewBox="0 0 320 88">
+  <rect width="320" height="88" fill="transparent"/>
+  <rect x="12" y="14" width="60" height="60" rx="12" fill="${iconBg}"/>
+  <text x="42" y="52" text-anchor="middle" fill="${iconText}" font-family="Arial,sans-serif" font-size="22" font-weight="700">${mark}</text>
+  <text font-family="Arial,sans-serif" font-size="22" font-weight="700">${nameSpans}</text>
+</svg>`;
+  return svgDataUrl(svg);
+}
+
+export function buildCustomFaviconSvgDataUrl(
+  words: LogoWord[],
+  faviconBg: string,
+  faviconText: string
+): string {
+  const mark = escapeXml(initialsFromWords(words));
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="${faviconBg}"/>
+  <text x="16" y="21" text-anchor="middle" fill="${faviconText}" font-family="Arial,sans-serif" font-size="13" font-weight="700">${mark}</text>
+</svg>`;
+  return svgDataUrl(svg);
+}
+
+function initials(siteName: string): string {
+  const words = siteName.trim().split(/\s+/).filter(Boolean);
+  if (words.length >= 2) return (words[0][0] + words[1][0]).toUpperCase();
+  return siteName.slice(0, 2).toUpperCase() || "LG";
 }
 
 export function generateLogoSvgDataUrl(siteName: string, primary = "#4a4a4a"): string {
@@ -27,7 +77,7 @@ export function generateLogoSvgDataUrl(siteName: string, primary = "#4a4a4a"): s
   const name = escapeXml(siteName.slice(0, 28));
   const svg = `<?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="320" height="88" viewBox="0 0 320 88">
-  <rect width="320" height="88" fill="#ffffff"/>
+  <rect width="320" height="88" fill="transparent"/>
   <rect x="12" y="14" width="60" height="60" rx="12" fill="${primary}"/>
   <text x="42" y="52" text-anchor="middle" fill="#ffffff" font-family="Arial,sans-serif" font-size="22" font-weight="700">${mark}</text>
   <text x="88" y="52" fill="#1a1a1a" font-family="Arial,sans-serif" font-size="22" font-weight="700">${name}</text>

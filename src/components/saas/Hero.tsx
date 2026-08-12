@@ -1,19 +1,26 @@
-import Image from 'next/image';
+'use client';
+
+import { useSaasPreviewContent } from './SaasPreviewProvider';
 
 export default function SaasHero() {
+  const preview = useSaasPreviewContent();
+  const title = preview?.tagline || 'Lorem Ipsum Dolor Sit Amet Lorem ';
+  const subtitle = preview?.heroSubtitle || 'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis';
+  const heroImg = preview?.heroImage || '/saas/images/placeholder-hero.png';
+
   return (
     <div className="elementor-element elementor-element-ef210cf e-flex e-con-boxed e-con e-parent" data-id="ef210cf" data-element_type="container">
       <div className="e-con-inner">
         <div className="elementor-element elementor-element-01e908f e-con-full e-flex elementor-invisible e-con e-child" data-id="01e908f" data-element_type="container" data-settings='{"animation":"fadeIn","animation_delay":100}'>
           <div className="elementor-element elementor-element-8bdc6fb elementor-widget__width-initial elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="8bdc6fb" data-element_type="widget">
             <div className="elementor-widget-container">
-              <h1 className="elementor-heading-title elementor-size-default">Lorem Ipsum Dolor Sit Amet Lorem </h1>
+              <h1 className="elementor-heading-title elementor-size-default">{title}</h1>
             </div>
           </div>
           
           <div className="elementor-element elementor-element-98f8e1c elementor-widget__width-initial elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="98f8e1c" data-element_type="widget">
             <div className="elementor-widget-container">
-              <p className="elementor-heading-title elementor-size-default">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis</p>
+              <p className="elementor-heading-title elementor-size-default">{subtitle}</p>
             </div>
           </div>
           
@@ -59,7 +66,8 @@ export default function SaasHero() {
         <div className="elementor-element elementor-element-6f258b5 e-con-full e-flex elementor-invisible e-con e-child" data-id="6f258b5" data-element_type="container" data-settings='{"animation":"fadeInUp","animation_delay":200}'>
           <div className="elementor-element elementor-element-bd05f9f elementor-widget elementor-widget-image" data-id="bd05f9f" data-element_type="widget">
             <div className="elementor-widget-container">
-              <Image decoding="async" src="/saas/images/placeholder-hero.png" title="" alt="" loading="lazy" width={800} height={600} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img decoding="async" src={heroImg} title="" alt="" loading="lazy" width={800} height={600} />
             </div>
           </div>
         </div>

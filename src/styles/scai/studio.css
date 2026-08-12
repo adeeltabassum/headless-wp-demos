@@ -54,6 +54,8 @@
 
 .scai-studio .builder-topbar__meta input:focus {
   outline: none;
+  border-color: var(--scai-primary);
+  box-shadow: 0 0 0 3px var(--scai-focus-ring);
 }
 
 .scai-studio .builder-topbar__slug {
@@ -106,7 +108,7 @@
 
 .scai-studio .builder-btn--primary {
   background: var(--scai-grad);
-  color: #030303;
+  color: var(--scai-on-primary);
   font-weight: 700;
   border: 0;
   box-shadow: var(--scai-shadow-glow);
@@ -114,7 +116,7 @@
 
 .scai-studio .builder-btn--primary:hover:not(:disabled) {
   filter: brightness(1.08);
-  color: #030303;
+  color: var(--scai-on-primary);
 }
 
 .scai-studio .builder-btn--ghost {
@@ -224,7 +226,7 @@
 .scai-studio .builder-msg--user {
   align-self: flex-end;
   background: var(--scai-grad);
-  color: #030303;
+  color: var(--scai-on-primary);
   font-weight: 500;
   border-bottom-right-radius: 4px;
 }
@@ -405,6 +407,7 @@
 .scai-studio .builder-field select:focus {
   outline: none;
   border-color: var(--scai-primary);
+  box-shadow: 0 0 0 3px var(--scai-focus-ring);
 }
 
 .scai-studio .builder-row {
@@ -624,6 +627,7 @@
 .scai-studio .builder-gate__card input:focus {
   outline: none;
   border-color: var(--scai-primary);
+  box-shadow: 0 0 0 3px var(--scai-focus-ring);
 }
 
 .scai-studio .builder-gate__card button {
@@ -631,7 +635,7 @@
   border: none;
   border-radius: var(--r);
   background: var(--scai-grad);
-  color: #030303;
+  color: var(--scai-on-primary);
   font-weight: 700;
   cursor: pointer;
   box-shadow: var(--scai-shadow-glow);
@@ -698,7 +702,7 @@
 }
 
 .scai-studio .builder-dashboard__card:hover {
-  border-color: rgba(64, 237, 195, 0.35);
+  border-color: var(--scai-focus-ring);
   box-shadow: var(--sh-md);
 }
 
@@ -802,7 +806,7 @@
 .scai-studio .builder-wizard__step.is-active {
   border-color: var(--scai-primary);
   color: var(--scai-text);
-  background: rgba(64, 237, 195, 0.08);
+  background: var(--scai-primary-tint);
 }
 
 .scai-studio .builder-wizard__step.is-done {
@@ -822,7 +826,7 @@
 
 .scai-studio .builder-wizard__step.is-active .builder-wizard__step-num {
   background: var(--scai-primary);
-  color: #030303;
+  color: var(--scai-on-primary);
 }
 
 .scai-studio .builder-wizard__nav {
@@ -867,7 +871,7 @@
 
 .scai-studio .builder-template-card.is-selected {
   border-color: var(--scai-primary);
-  box-shadow: 0 0 0 1px rgba(64, 237, 195, 0.25);
+  box-shadow: 0 0 0 1px var(--scai-focus-ring);
 }
 
 .scai-studio .builder-template-card__badge {
@@ -946,6 +950,26 @@
   cursor: pointer;
 }
 
+.scai-studio .builder-radio input[type="radio"],
+.scai-studio .builder-checkbox input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--scai-primary);
+  cursor: pointer;
+}
+
+.scai-studio .builder-radio input[type="radio"]:focus-visible,
+.scai-studio .builder-checkbox input[type="checkbox"]:focus-visible {
+  outline: 2px solid var(--scai-primary);
+  outline-offset: 2px;
+}
+
+.scai-studio .builder-field select:hover,
+.scai-studio .builder-field input:hover:not([type="color"]),
+.scai-studio .builder-field textarea:hover {
+  border-color: var(--scai-accent-hover);
+}
+
 .scai-studio .builder-checkbox-grid {
   display: flex;
   flex-wrap: wrap;
@@ -975,5 +999,33 @@
   border-radius: var(--r-lg);
   background: var(--surface);
   border: var(--bd-1);
+}
+
+.scai-studio .builder-logo-customizer__previews {
+  align-items: flex-start;
+}
+
+.scai-studio .builder-image-slot__thumb--logo {
+  width: 160px;
+  height: auto;
+  object-fit: contain;
+  background: #fff;
+}
+
+.scai-studio .builder-image-slot__thumb--favicon {
+  width: 48px;
+  height: 48px;
+}
+
+.scai-studio .builder-logo-customizer__word {
+  margin-bottom: 8px;
+}
+
+.scai-studio .builder-preview-frame--local {
+  background: #fafafa;
+}
+
+.scai-studio .builder-preview-frame--saas {
+  background: var(--scai-bg);
 }
 

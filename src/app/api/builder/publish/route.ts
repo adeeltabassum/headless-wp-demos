@@ -3,7 +3,11 @@ import { existsSync } from "fs";
 import path from "path";
 import { BuilderDraftSchema } from "@/lib/builder/schema";
 import { deriveContent, deriveTheme } from "@/lib/builder/derive";
+import { deriveLocalContent, deriveLocalTheme } from "@/lib/builder/deriveLocal";
+import { deriveSaasContent } from "@/lib/builder/deriveSaas";
 import { generateAllSiteFiles } from "@/lib/builder/generateSiteFiles";
+import { generateLocalSiteFiles } from "@/lib/builder/generateLocalSiteFiles";
+import { generateSaasSiteFiles } from "@/lib/builder/generateSaasSiteFiles";
 import { extractDraftImages } from "@/lib/builder/extractImages";
 import { isSlugTaken, upsertEntry, type SiteRegistryEntry } from "@/lib/sites/registry";
 import { isGithubConfigured, commitFilesAndOpenPr, type CommitFile } from "@/lib/builder/github";
@@ -53,11 +57,40 @@ export async function POST(req: NextRequest) {
     // fs unavailable in this runtime — the registry check above is the source of truth there.
   }
 
-  const rawContent = deriveContent(draft);
-  const theme = deriveTheme(draft);
-  const { content, imageFiles } = await extractDraftImages(draft.slug, rawContent);
+  const templateId = draft.templateId || "niche-template";
 
-  const siteFiles = generateAllSiteFiles({ slug: draft.slug, content, theme });
+  let siteFiles;
+  let imageFiles: Awaited<ReturnType<typeof extractDraftImages>>["imageFiles"] = [];
+  let publishSummary: { categories?: string; articles?: number } = {};
+
+  if (templateId === "local") {
+    const localContent = deriveLocalContent(draft);
+    const localTheme = deriveLocalTheme(draft);
+    siteFiles = generateLocalSiteFiles(draft.slug, localContent, localTheme);
+    publishSummary = { categories: draft.categories?.map((c) => c.label).join(", "), articles: 0 };
+  } else if (templateId === "saas") {
+    const saasContent = deriveSaasContent(draft);
+    siteFiles = generateSaasSiteFiles(draft.slug, saasContent);
+    publishSummary = { articles: 0 };
+  } else {
+    const rawContent = deriveContent(draft);
+    const theme = deriveTheme(draft);
+    const extracted = await extractDraftImages(draft.slug, rawContent);
+    const { content, imageFiles: imgs } = extracted;
+    imageFiles = imgs;
+    siteFiles = generateAllSiteFiles({ slug: draft.slug, content, theme });
+    publishSummary = {
+      categories: content.categories.map((c) => c.label).join(", "),
+      articles: content.articles.length,
+    };
+  }
+
+  if (templateId !== "niche-template") {
+    // Extract logo/favicon data URLs for local/saas if present
+    const { imageFiles: brandImages } = await extractDraftImages(draft.slug, deriveContent({ ...draft, templateId: "niche-template" }));
+    imageFiles = brandImages.filter((f) => f.path.includes("logo") || f.path.includes("favicon"));
+  }
+
   const textFiles: CommitFile[] = siteFiles.map((f) => ({ path: f.path, content: f.contents, encoding: "utf-8" }));
   const allFiles = [...textFiles, ...imageFiles];
 
@@ -95,8 +128,9 @@ export async function POST(req: NextRequest) {
         "",
         `- Site: ${draft.siteName}`,
         `- Slug: /${draft.slug}`,
-        `- Categories: ${content.categories.map((c) => c.label).join(", ")}`,
-        `- Articles: ${content.articles.length}`,
+        `- Template: ${templateId}`,
+        `- Categories: ${publishSummary.categories || "—"}`,
+        `- Articles: ${publishSummary.articles ?? 0}`,
         `- Generated images: ${imageFiles.length}`,
         "",
         "Review the diff, then merge to deploy.",

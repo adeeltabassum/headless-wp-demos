@@ -1,7 +1,10 @@
-import { localContent } from "@/lib/local/content";
+"use client";
+
+import { useLocalContent } from "./LocalContentProvider";
 import { PremiumButton } from "./PremiumButton";
 
 export function StatsCTASection() {
+  const localContent = useLocalContent();
   const { statsCta, phone, phoneHref } = localContent;
 
   return (

@@ -15,7 +15,8 @@ export function SlotImage({ src, alt, width, height, className, ...rest }: Image
     (srcStr.endsWith(".svg") ||
       srcStr.startsWith("data:") ||
       srcStr.startsWith("https://picsum.photos/") ||
-      srcStr.startsWith("https://fastly.picsum.photos/"))
+      srcStr.startsWith("https://fastly.picsum.photos/") ||
+      srcStr.startsWith("https://images.pexels.com/"))
   ) {
     // eslint-disable-next-line @next/next/no-img-element
     return <img src={srcStr} alt={alt} width={width} height={height} className={className} />;

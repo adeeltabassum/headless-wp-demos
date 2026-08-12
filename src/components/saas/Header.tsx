@@ -1,9 +1,13 @@
 'use client';
 
 import Link from 'next/link';
-import Image from 'next/image';
+import { useSaasPreviewContent } from './SaasPreviewProvider';
 
 export default function SaasHeader() {
+  const preview = useSaasPreviewContent();
+  const logoSrc = preview?.logo || '/saas/images/logo.png';
+  const logoAlt = preview?.siteName || 'SAAS Template';
+
   return (
     <header data-elementor-type="header" data-elementor-id="430" className="elementor elementor-430 elementor-location-header" data-elementor-post-type="elementor_library">
       <div className="elementor-element elementor-element-beaee92 e-flex e-con-boxed e-con e-parent" data-id="beaee92" data-element_type="container">
@@ -11,7 +15,8 @@ export default function SaasHeader() {
           <div className="elementor-element elementor-element-6b034f1 elementor-widget-tablet__width-auto elementor-widget-mobile__width-auto header elementor-widget elementor-widget-theme-site-logo elementor-widget-image" data-id="6b034f1" data-element_type="widget">
             <div className="elementor-widget-container">
               <Link href="/saas">
-                <Image width={175} height={46} src="/saas/images/logo.png" className="attachment-full size-full wp-image-407" alt="SAAS Template" />
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img width={175} height={46} src={logoSrc} className="attachment-full size-full wp-image-407" alt={logoAlt} />
               </Link>
             </div>
           </div>

@@ -8,6 +8,7 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       { protocol: "https", hostname: "picsum.photos" },
       { protocol: "https", hostname: "fastly.picsum.photos" },
+      { protocol: "https", hostname: "images.pexels.com" },
     ],
   },
   // The builder's "edit a published site" flow reads each site's

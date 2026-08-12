@@ -166,15 +166,27 @@ export function DraftPanel({
   async function draftPage(key: "about" | "faq" | "privacy" | "terms" | "contactIntro") {
     const data = await onGenerateSection("page", { ...baseCtx, pageKey: key }, `page:${key}`);
     if (!data) return;
-    onChange({ pages: { ...draft.pages, [key]: data.text as string } });
+    if (Array.isArray(data.blocks)) {
+      onChange({ pages: { ...draft.pages, [key]: { blocks: data.blocks as never } } });
+    } else if (typeof data.text === "string") {
+      onChange({ pages: { ...draft.pages, [key]: data.text } });
+    }
   }
 
   async function draftArticlesForCategory(categoryLabel: string) {
     const data = await onGenerateSection("articles", { ...baseCtx, categoryLabel, count: 3 }, `articles:${categoryLabel}`);
     if (!data) return;
-    const generated = (data.articles as Array<{ title: string; excerpt: string; content: string[] }>).map((a) => ({
+    const generated = (
+      data.articles as Array<{
+        title: string;
+        excerpt: string;
+        blocks?: unknown[];
+        content?: string[];
+      }>
+    ).map((a) => ({
       title: a.title,
       excerpt: a.excerpt,
+      blocks: a.blocks as never,
       content: a.content,
       category: categoryLabel,
       slug: slugify(a.title),
@@ -559,7 +571,16 @@ export function DraftPanel({
               <label style={{ marginBottom: 0 }}>{label}</label>
               <AiButton label="Draft with AI" busy={busyKey === `page:${key}`} onClick={() => draftPage(key)} />
             </div>
-            <textarea value={draft.pages?.[key] || ""} onChange={(e) => onChange({ pages: { ...draft.pages, [key]: e.target.value } })} />
+            <textarea
+              value={
+                typeof draft.pages?.[key] === "string"
+                  ? draft.pages[key]
+                  : draft.pages?.[key] && typeof draft.pages[key] === "object"
+                    ? JSON.stringify((draft.pages[key] as { blocks: unknown }).blocks, null, 2)
+                    : ""
+              }
+              onChange={(e) => onChange({ pages: { ...draft.pages, [key]: e.target.value } })}
+            />
           </div>
         ))}
       </section>

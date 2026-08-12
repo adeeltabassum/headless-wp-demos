@@ -1,6 +1,9 @@
-import { localContent } from "@/lib/local/content";
+"use client";
+
+import { useLocalContent } from "./LocalContentProvider";
 
 export function QuoteForm() {
+  const localContent = useLocalContent();
   const { quoteForm, phone, phoneHref } = localContent;
 
   return (

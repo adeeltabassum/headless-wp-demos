@@ -3,7 +3,9 @@
 import { useState } from "react";
 import { NicheTemplatePageBanner } from "./PageBanner";
 import { NicheTemplateSidebar } from "./Sidebar";
+import { ContentFaqItem } from "./ContentBlocks";
 import { IMAGE_SLOTS } from "@/lib/niche-template/images";
+import { faqItemsFromBlocks, resolvePageBlocks } from "@/lib/builder/contentBlocks";
 import { parseFaqItems } from "@/lib/niche-template/richContent";
 import type { NicheTemplateContent, StaticPageData } from "@/lib/niche-template/content";
 
@@ -14,7 +16,17 @@ export function NicheTemplateFaqPage({
   content: NicheTemplateContent;
   page: StaticPageData;
 }) {
-  const items = parseFaqItems(page.content ?? (page.intro ? [page.intro] : []));
+  const blocks = resolvePageBlocks({
+    blocks: page.blocks,
+    content: page.content,
+    intro: page.intro,
+    title: page.title,
+  });
+  const fromBlocks = faqItemsFromBlocks(blocks);
+  const items =
+    fromBlocks.length > 0
+      ? fromBlocks
+      : parseFaqItems(page.content ?? (page.intro ? [page.intro] : []));
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
@@ -26,32 +38,20 @@ export function NicheTemplateFaqPage({
           <div className="nt-content-grid">
             <div className="nt-prose">
               {items.length === 0 ? (
-                <p style={{ color: "var(--nt-muted)" }}>FAQ content is being drafted — check back soon.</p>
+                <p className="nt-block-paragraph" style={{ color: "var(--nt-muted, #6b6b6b)" }}>
+                  FAQ content is being drafted — check back soon.
+                </p>
               ) : (
                 <div className="nt-faq">
-                  {items.map((item, i) => {
-                    const isOpen = openIndex === i;
-                    return (
-                      <div key={item.question} className={`nt-faq__item${isOpen ? " is-open" : ""}`}>
-                        <button
-                          type="button"
-                          className="nt-faq__question"
-                          aria-expanded={isOpen}
-                          onClick={() => setOpenIndex(isOpen ? null : i)}
-                        >
-                          <span>{item.question}</span>
-                          <span className="nt-faq__icon" aria-hidden="true">
-                            {isOpen ? "−" : "+"}
-                          </span>
-                        </button>
-                        {isOpen && (
-                          <div className="nt-faq__answer">
-                            <p>{item.answer}</p>
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
+                  {items.map((item, i) => (
+                    <ContentFaqItem
+                      key={`${item.question}-${i}`}
+                      question={item.question}
+                      answer={item.answer}
+                      open={openIndex === i}
+                      onToggle={() => setOpenIndex(openIndex === i ? null : i)}
+                    />
+                  ))}
                 </div>
               )}
             </div>

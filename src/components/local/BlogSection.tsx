@@ -1,6 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { localContent } from "@/lib/local/content";
+import { useLocalContent } from "./LocalContentProvider";
 import { PremiumButton } from "./PremiumButton";
 
 function ChevronRight() {
@@ -12,6 +14,7 @@ function ChevronRight() {
 }
 
 export function BlogSection() {
+  const localContent = useLocalContent();
   const { blog, phone, phoneHref } = localContent;
 
   return (

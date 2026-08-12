@@ -1,5 +1,7 @@
-import { RichContent as RichContentBlocks } from "@/lib/niche-template/richContent";
+import { ContentBlocks } from "./ContentBlocks";
+import { legacyStringsToBlocks } from "@/lib/builder/contentBlocks";
 
+/** @deprecated Prefer ContentBlocks with typed blocks. Kept for any remaining string[] callers. */
 export function NicheTemplateRichContent({ blocks }: { blocks: string[] }) {
-  return <RichContentBlocks blocks={blocks} />;
+  return <ContentBlocks blocks={legacyStringsToBlocks(blocks)} />;
 }

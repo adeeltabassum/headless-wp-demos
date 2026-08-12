@@ -51,7 +51,7 @@
   font-weight: 700;
   text-transform: capitalize;
   line-height: 66px;
-  color: #111827;
+  color: var(--fb-heading, #111827);
 }
 
 .fb-hero__title .fb-hero__highlight {
@@ -63,7 +63,7 @@
 
 .fb-hero__subtitle {
   margin: 0;
-  color: #475467;
+  color: var(--fb-text);
   font-family: var(--fb-font);
   font-size: 23px;
   font-weight: 400;
@@ -72,7 +72,7 @@
 
 .fb-hero__subtitle strong {
   font-weight: 700;
-  color: #111827;
+  color: var(--fb-heading, #111827);
 }
 
 .fb-hero__actions {
@@ -146,7 +146,7 @@
   font-size: 23px;
   font-weight: 700;
   line-height: 32px;
-  color: #111827;
+  color: var(--fb-heading, #111827);
 }
 
 .fb-quote-form__subtitle {
@@ -156,7 +156,7 @@
   font-size: 17px;
   font-weight: 300;
   line-height: 25px;
-  color: #000000;
+  color: var(--fb-black);
 }
 
 .fb-quote-form__phone,
@@ -227,11 +227,11 @@
   font-size: 16px;
   font-weight: 400;
   line-height: 24px;
-  color: #111827;
+  color: var(--fb-heading, #111827);
 }
 
 .fb-quote-form__input::placeholder {
-  color: #111827;
+  color: var(--fb-heading, #111827);
   opacity: 0.6;
 }
 

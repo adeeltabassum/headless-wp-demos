@@ -1,6 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
-import { localContent } from "@/lib/local/content";
+import { useLocalContent } from "./LocalContentProvider";
 import { FacebookIcon, InstagramIcon, TwitterIcon } from "./icons";
 import { StickyBar } from "./StickyBar";
 
@@ -13,6 +15,7 @@ function YelpIcon() {
 }
 
 export function LocalFooter() {
+  const localContent = useLocalContent();
   const { footer, logo, licenses } = localContent;
   const year = new Date().getFullYear();
 

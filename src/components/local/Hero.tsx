@@ -1,9 +1,12 @@
+"use client";
+
 import Link from "next/link";
-import { localContent } from "@/lib/local/content";
+import { useLocalContent } from "./LocalContentProvider";
 import { PremiumButton } from "./PremiumButton";
 import { QuoteForm } from "./QuoteForm";
 
 export function LocalHero() {
+  const localContent = useLocalContent();
   const { hero } = localContent;
 
   return (

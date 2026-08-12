@@ -92,9 +92,20 @@ export function mockSection(section: import("./sections").SectionKey, ctx: impor
         articles: Array.from({ length: count }).map((_, i) => ({
           title: `${label} Guide ${i + 1}`,
           excerpt: `${MOCK_TAG} a short excerpt about ${label.toLowerCase()}, point ${i + 1}.`,
-          content: [
-            `${MOCK_TAG} introductory paragraph about ${label.toLowerCase()}.`,
-            `${MOCK_TAG} supporting details and practical tips, part ${i + 1}.`,
+          blocks: [
+            { type: "heading" as const, level: 2 as const, text: `Getting started with ${label}` },
+            {
+              type: "paragraph" as const,
+              text: `${MOCK_TAG} introductory paragraph about ${label.toLowerCase()}.`,
+            },
+            {
+              type: "paragraph" as const,
+              text: `${MOCK_TAG} supporting details and practical tips, part ${i + 1}.`,
+            },
+            {
+              type: "list" as const,
+              items: [`Tip one for ${label.toLowerCase()}`, `Tip two for ${label.toLowerCase()}`, "Tip three to remember"],
+            },
           ],
         })),
       };
@@ -113,7 +124,24 @@ export function mockSection(section: import("./sections").SectionKey, ctx: impor
     case "categoryDescription":
       return { description: `${MOCK_TAG} everything about ${(ctx.label || "this topic").toLowerCase()}.` };
     case "page":
-      return { text: `${MOCK_TAG} placeholder ${ctx.pageKey || "page"} copy for ${ctx.siteName}.` };
+      if (ctx.pageKey === "faq") {
+        return {
+          blocks: Array.from({ length: 5 }).map((_, i) => ({
+            type: "faqItem" as const,
+            question: `${MOCK_TAG} Question ${i + 1} about ${ctx.siteName}?`,
+            answer: `Placeholder answer ${i + 1} for ${ctx.siteName}.`,
+          })),
+        };
+      }
+      return {
+        blocks: [
+          { type: "heading" as const, level: 2 as const, text: `${ctx.pageKey || "Page"} overview` },
+          {
+            type: "paragraph" as const,
+            text: `${MOCK_TAG} placeholder ${ctx.pageKey || "page"} copy for ${ctx.siteName}.`,
+          },
+        ],
+      };
     default:
       throw new Error(`Unknown section: ${section}`);
   }

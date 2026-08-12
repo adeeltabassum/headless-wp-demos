@@ -3,10 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { localContent } from "@/lib/local/content";
+import { useLocalContent } from "./LocalContentProvider";
 import { PremiumButton } from "./PremiumButton";
 
 export function LocalHeader() {
+  const localContent = useLocalContent();
   const [open, setOpen] = useState(false);
   const { logo, nav, hero } = localContent;
 

@@ -33,11 +33,6 @@ export default function HomePage() {
                 SCAI Studio
               </Link>
             </div>
-            <ul className="sg-home__list">
-              <li>Reusable templates for every new project</li>
-              <li>AI-powered site builder at /studio</li>
-              <li>SCAI design system across library and studio</li>
-            </ul>
           </div>
         </div>
       </main>

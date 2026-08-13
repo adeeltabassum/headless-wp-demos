@@ -8,7 +8,7 @@ export function StatsCTASection() {
   const { statsCta, phone, phoneHref } = localContent;
 
   return (
-    <section className="fb-section fb-stats-cta">
+    <section id="stats" className="fb-section fb-stats-cta">
       <div className="fb-section__inner">
         <div className="fb-stats-cta__top">
           <div className="fb-stats-cta__copy">

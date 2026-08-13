@@ -9,7 +9,7 @@ export function ReviewsSection() {
   const { reviews } = localContent;
 
   return (
-    <section className="fb-section fb-reviews">
+    <section id="reviews" className="fb-section fb-reviews">
       <div className="fb-section__inner">
         <div className="fb-reviews__bar">
           <span className="fb-reviews__google-btn">

@@ -30,6 +30,7 @@ function ServiceCard({
           width={size === "large" ? 260 : 175}
           height={size === "large" ? 250 : 220}
           className="fb-service-card__image"
+          unoptimized={image.endsWith(".svg")}
         />
       </div>
       <h3 className="fb-service-card__title">{title}</h3>
@@ -46,7 +47,7 @@ export function ServicesSection() {
   const { services } = localContent;
 
   return (
-    <section className="fb-section fb-services">
+    <section id="services" className="fb-section fb-services">
       <div className="fb-section__inner">
         <div className="fb-section__header">
           <h2 className="fb-section__title">{services.heading}</h2>

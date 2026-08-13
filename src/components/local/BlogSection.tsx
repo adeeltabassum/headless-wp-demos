@@ -18,7 +18,7 @@ export function BlogSection() {
   const { blog, phone, phoneHref } = localContent;
 
   return (
-    <section className="fb-section fb-blog">
+    <section id="blog" className="fb-section fb-blog">
       <div className="fb-section__inner">
         <div className="fb-section__header">
           <h2 className="fb-section__title">{blog.heading}</h2>
@@ -26,8 +26,8 @@ export function BlogSection() {
         </div>
 
         <div className="fb-blog__grid">
-          {blog.posts.map((post) => (
-            <article key={post.href} className="fb-blog-card">
+          {blog.posts.map((post, index) => (
+            <article key={`${post.title}-${index}`} className="fb-blog-card">
               <div className="fb-blog-card__media">
                 <span className="fb-blog-card__tag">{post.category}</span>
                 <Link href={post.href}>
@@ -37,6 +37,7 @@ export function BlogSection() {
                     width={800}
                     height={400}
                     className="fb-blog-card__image"
+                    unoptimized={post.image.endsWith(".svg")}
                   />
                 </Link>
               </div>

@@ -1,16 +1,26 @@
 /* Flat Bid Moving - Header & Footer (ported from update-home.html / elementor-1202 & elementor-85) */
 
+/* Defaults — overridden by LocalRoot / localThemeToCssVars per site */
 :root {
-  --fb-primary: #d63742;
+  --fb-primary: #4a4a4a;
+  --fb-on-primary: #ffffff;
   --fb-white: #ffffff;
-  --fb-black: #000000;
+  --fb-black: #0c0d0e;
   --fb-dark: #1f2124;
   --fb-heading: #111827;
   --fb-text: #636363;
   --fb-border: #e2e8f0;
   --fb-bg-soft: #fafafa;
+  --fb-bg: #fafafa;
+  --fb-surface: #ffffff;
   --fb-container: 1140px;
   --fb-font: var(--font-inter), Inter, sans-serif;
+}
+
+.fb-page {
+  font-family: var(--fb-font);
+  color: var(--fb-text);
+  background: var(--fb-white);
 }
 
 /* ─── Shared Premium Button Style 4 ─── */

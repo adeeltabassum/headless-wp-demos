@@ -1,6 +1,6 @@
-import { localContent, type LocalContent } from "@/lib/local/content";
-import type { LocalTheme } from "@/lib/local/theme";
-import { localTheme } from "@/lib/local/theme";
+import { localSampleContent } from "@/lib/local/sample-content";
+import type { LocalContent } from "@/lib/local/content";
+import { defaultLocalTheme, type LocalTheme } from "@/lib/local/theme";
 import type { BuilderDraft } from "./schema";
 import { getNicheLabel, getToneLabel } from "./presets";
 import {
@@ -12,25 +12,28 @@ import { stockPhotoUrl } from "./stockPhotos";
 function resolveLogo(draft: BuilderDraft): string {
   if (draft.logo) return draft.logo;
   if (draft.logoCustomization) return renderLogoFromCustomization(draft.logoCustomization);
-  return localContent.logo;
+  return localSampleContent.logo;
 }
 
 function resolveFavicon(draft: BuilderDraft): string {
   if (draft.favicon) return draft.favicon;
   if (draft.logoCustomization) return renderFaviconFromCustomization(draft.logoCustomization);
-  return localContent.favicon;
+  return localSampleContent.favicon;
 }
 
 export function deriveLocalContent(draft: BuilderDraft): LocalContent {
   const niche = getNicheLabel(draft.niche, draft.nicheCustom);
   const tone = getToneLabel(draft.tone).toLowerCase();
+  const base = `/${draft.slug}`;
 
   const heroTitle = draft.hero?.title || draft.siteName;
   const titleParts = heroTitle.split(/\s+/);
   const mid = Math.ceil(titleParts.length / 2);
 
   return {
-    ...localContent,
+    ...localSampleContent,
+    siteName: draft.siteName,
+    siteBase: base,
     metadata: {
       title: `${draft.siteName} | ${niche}`,
       description:
@@ -44,20 +47,23 @@ export function deriveLocalContent(draft: BuilderDraft): LocalContent {
       draft.hero?.background ||
       draft.templateImages?.hero ||
       stockPhotoUrl(draft.siteName, draft.niche, "hero"),
+    aboutBlurb:
+      draft.sidebar?.about ||
+      `${draft.siteName} provides professional ${niche.toLowerCase()} services you can trust.`,
     hero: {
-      ...localContent.hero,
+      ...localSampleContent.hero,
       titleHighlight: titleParts.slice(0, mid).join(" ") || draft.siteName,
       titleRest: titleParts.slice(mid).join(" ") || niche,
       subtitle:
         draft.hero?.subtitle ||
-        `${draft.siteName} specializes in ${niche.toLowerCase()} — professional, reliable service.`,
-      cta: draft.hero?.button || localContent.hero.cta,
+        `specializes in ${niche.toLowerCase()} — professional, reliable service for residential and commercial clients.`,
+      cta: draft.hero?.button || localSampleContent.hero.cta,
     },
     services: {
-      ...localContent.services,
+      ...localSampleContent.services,
       heading: `${draft.siteName} Services`,
       subheading: `Trusted ${niche.toLowerCase()} solutions tailored to your needs.`,
-      items: localContent.services.items.map((item, i) => ({
+      items: localSampleContent.services.items.map((item, i) => ({
         ...item,
         title: draft.categories?.[i]?.label || item.title,
         description:
@@ -65,32 +71,32 @@ export function deriveLocalContent(draft: BuilderDraft): LocalContent {
           `Expert ${(draft.categories?.[i]?.label || item.title).toLowerCase()} services.`,
         image:
           draft.templateImages?.services?.[i] ||
-          stockPhotoUrl(item.title, draft.niche, "categoryTile"),
-      })) as unknown as LocalContent["services"]["items"],
+          stockPhotoUrl(draft.categories?.[i]?.label || item.title, draft.niche, "categoryTile"),
+      })),
     },
     gallery: {
-      ...localContent.gallery,
-      images: (draft.templateImages?.gallery?.length
+      ...localSampleContent.gallery,
+      images: draft.templateImages?.gallery?.length
         ? draft.templateImages.gallery
-        : localContent.gallery.images) as LocalContent["gallery"]["images"],
+        : localSampleContent.gallery.images,
     },
     footer: {
-      ...localContent.footer,
-      copyright: draft.footer?.copyright || `© ${new Date().getFullYear()} ${draft.siteName}. All rights reserved.`,
+      ...localSampleContent.footer,
+      copyright: draft.footer?.copyright || `${draft.siteName}. All Rights Reserved.`,
     },
-  } as unknown as LocalContent;
+  };
 }
 
 export function deriveLocalTheme(draft: BuilderDraft): LocalTheme {
-  const primary = draft.theme?.primary || localTheme.colors.primary;
   return {
-    ...localTheme,
-    colors: {
-      ...localTheme.colors,
-      primary,
-      background: draft.theme?.background || localTheme.colors.background,
-      text: draft.theme?.text || localTheme.colors.text,
-      dark: draft.theme?.ink || localTheme.colors.dark,
-    },
-  } as LocalTheme;
+    ...defaultLocalTheme,
+    primary: draft.theme?.primary || defaultLocalTheme.primary,
+    onPrimary: draft.theme?.onPrimary || defaultLocalTheme.onPrimary,
+    background: draft.theme?.background || defaultLocalTheme.background,
+    surface: draft.theme?.surface || defaultLocalTheme.surface,
+    text: draft.theme?.muted || draft.theme?.text || defaultLocalTheme.text,
+    heading: draft.theme?.text || defaultLocalTheme.heading,
+    dark: draft.theme?.ink || defaultLocalTheme.dark,
+    border: draft.theme?.border || defaultLocalTheme.border,
+  };
 }

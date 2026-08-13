@@ -13,6 +13,7 @@ import { FAQSection } from "@/components/local/FAQSection";
 import { StatsCTASection } from "@/components/local/StatsCTASection";
 import { LocalFooter } from "@/components/local/Footer";
 import { LocalContentProvider } from "@/components/local/LocalContentProvider";
+import { LocalRoot } from "@/components/local/LocalRoot";
 import { deriveLocalContent, deriveLocalTheme } from "@/lib/builder/deriveLocal";
 import type { WorkingDraft } from "@/lib/builder/mergePatch";
 import type { BuilderDraft } from "@/lib/builder/schema";
@@ -40,29 +41,25 @@ export function LocalPreviewPanel({ draft }: { draft: WorkingDraft }) {
     );
   }
 
-  const cssVars = {
-    ["--fb-primary" as string]: theme.colors.primary,
-    ["--fb-bg" as string]: theme.colors.background,
-    ["--fb-text" as string]: theme.colors.text,
-  } as React.CSSProperties;
-
   return (
-    <div className="builder-preview-frame builder-preview-frame--local" style={cssVars}>
-      <LocalContentProvider content={content}>
-        <div className="fb-has-sticky-bar">
-          <LocalHeader />
-          <main>
-            <LocalHero />
-            <ServicesSection />
-            <ReviewsSection />
-            <GallerySection />
-            <BlogSection />
-            <FAQSection />
-            <StatsCTASection />
-          </main>
-          <LocalFooter />
-        </div>
-      </LocalContentProvider>
+    <div className="builder-preview-frame builder-preview-frame--local">
+      <LocalRoot theme={theme}>
+        <LocalContentProvider content={content}>
+          <div className="fb-has-sticky-bar">
+            <LocalHeader />
+            <main>
+              <LocalHero />
+              <ServicesSection />
+              <ReviewsSection />
+              <GallerySection />
+              <BlogSection />
+              <FAQSection />
+              <StatsCTASection />
+            </main>
+            <LocalFooter />
+          </div>
+        </LocalContentProvider>
+      </LocalRoot>
     </div>
   );
 }

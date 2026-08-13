@@ -4,11 +4,11 @@ import Image from "next/image";
 import { useLocalContent } from "./LocalContentProvider";
 
 export function GallerySection() {
-  const localContent = useLocalContent();
-  const { gallery } = localContent;
+  const content = useLocalContent();
+  const { gallery, siteName } = content;
 
   return (
-    <section className="fb-section fb-gallery">
+    <section id="gallery" className="fb-section fb-gallery">
       <div className="fb-section__inner">
         <div className="fb-section__header">
           <h2 className="fb-section__title">{gallery.heading}</h2>
@@ -17,12 +17,13 @@ export function GallerySection() {
 
         <div className="fb-gallery__grid">
           {gallery.images.map((src, index) => (
-            <div key={src} className="fb-gallery__item">
+            <div key={`${src}-${index}`} className="fb-gallery__item">
               <Image
                 src={src}
-                alt={`Flat Bid Moving gallery image ${index + 1}`}
+                alt={`${siteName} gallery image ${index + 1}`}
                 fill
                 sizes="(max-width: 768px) 100vw, 33vw"
+                unoptimized={src.endsWith(".svg")}
               />
             </div>
           ))}

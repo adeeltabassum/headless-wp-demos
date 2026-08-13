@@ -4,7 +4,7 @@
   position: relative;
   padding: 100px 10px;
   background-color: var(--fb-white);
-  background-image: url("/local/images/hero-bg.jpg");
+  /* background-image set inline from content.heroBackground */
   background-size: cover;
   background-position: 72% center;
   background-repeat: no-repeat;

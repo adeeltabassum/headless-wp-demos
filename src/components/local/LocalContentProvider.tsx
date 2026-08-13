@@ -1,11 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { localContent } from "@/lib/local/content";
+import { createContext, useContext, type ReactNode } from "react";
+import type { LocalContent } from "@/lib/local/content";
+import { localSampleContent } from "@/lib/local/sample-content";
 
-export type LocalContent = typeof localContent;
-
-const LocalContentContext = createContext<LocalContent>(localContent);
+const LocalContentContext = createContext<LocalContent>(localSampleContent);
 
 export function LocalContentProvider({
   content,

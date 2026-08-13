@@ -7,9 +7,9 @@ import { useLocalContent } from "./LocalContentProvider";
 import { PremiumButton } from "./PremiumButton";
 
 export function LocalHeader() {
-  const localContent = useLocalContent();
+  const content = useLocalContent();
   const [open, setOpen] = useState(false);
-  const { logo, nav, hero } = localContent;
+  const { logo, nav, hero, siteName, siteBase } = content;
 
   const closeMenu = () => setOpen(false);
 
@@ -20,22 +20,16 @@ export function LocalHeader() {
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        closeMenu();
-      }
+      if (event.key === "Escape") closeMenu();
     };
-
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
   useEffect(() => {
     const onResize = () => {
-      if (window.innerWidth >= 1025) {
-        closeMenu();
-      }
+      if (window.innerWidth >= 1025) closeMenu();
     };
-
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
   }, []);
@@ -44,8 +38,8 @@ export function LocalHeader() {
     <>
       <header className="fb-header">
         <div className="fb-header__inner">
-          <Link href="/local" className="fb-header__logo">
-            <Image src={logo} alt="Flat Bid Moving" width={408} height={64} priority />
+          <Link href={siteBase} className="fb-header__logo">
+            <Image src={logo} alt={siteName} width={408} height={64} priority unoptimized={logo.endsWith(".svg")} />
           </Link>
 
           <nav className="fb-header__nav" aria-label="Main navigation">
@@ -95,15 +89,10 @@ export function LocalHeader() {
         aria-hidden={!open}
       >
         <div className="fb-header__drawer-head">
-          <Link href="/local" className="fb-header__drawer-logo" onClick={closeMenu}>
-            <Image src={logo} alt="Flat Bid Moving" width={408} height={64} />
+          <Link href={siteBase} className="fb-header__drawer-logo" onClick={closeMenu}>
+            <Image src={logo} alt={siteName} width={408} height={64} unoptimized={logo.endsWith(".svg")} />
           </Link>
-          <button
-            type="button"
-            className="fb-header__drawer-close"
-            aria-label="Close menu"
-            onClick={closeMenu}
-          >
+          <button type="button" className="fb-header__drawer-close" aria-label="Close menu" onClick={closeMenu}>
             <span />
           </button>
         </div>

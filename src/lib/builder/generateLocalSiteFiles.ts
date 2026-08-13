@@ -18,7 +18,7 @@ export function generateLocalSiteFiles(slug: string, content: LocalContent, them
       contents: `import type { LocalContent } from "@/lib/local/content";
 
 ${BANNER}
-export const ${Pascal}LocalContent = ${JSON.stringify(content, null, 2)} as const satisfies LocalContent;
+export const ${Pascal}LocalContent: LocalContent = ${JSON.stringify(content, null, 2)};
 `,
     },
     {
@@ -26,7 +26,7 @@ export const ${Pascal}LocalContent = ${JSON.stringify(content, null, 2)} as cons
       contents: `import type { LocalTheme } from "@/lib/local/theme";
 
 ${BANNER}
-export const ${Pascal}LocalTheme = ${JSON.stringify(theme, null, 2)} as const satisfies LocalTheme;
+export const ${Pascal}LocalTheme: LocalTheme = ${JSON.stringify(theme, null, 2)};
 `,
     },
     {
@@ -46,7 +46,9 @@ import { FAQSection } from "@/components/local/FAQSection";
 import { StatsCTASection } from "@/components/local/StatsCTASection";
 import { LocalFooter } from "@/components/local/Footer";
 import { LocalContentProvider } from "@/components/local/LocalContentProvider";
+import { LocalRoot } from "@/components/local/LocalRoot";
 import { ${Pascal}LocalContent as content } from "@/lib/sites/${slug}/content";
+import { ${Pascal}LocalTheme as theme } from "@/lib/sites/${slug}/theme";
 import "@/styles/local/header-footer.css";
 import "@/styles/local/hero.css";
 import "@/styles/local/sections.css";
@@ -54,25 +56,28 @@ import "@/styles/local/sections.css";
 export const metadata: Metadata = {
   title: content.metadata.title,
   description: content.metadata.description,
+  icons: { icon: content.favicon },
 };
 
 export default function Page() {
   return (
-    <LocalContentProvider content={content}>
-      <div className="fb-has-sticky-bar">
-        <LocalHeader />
-        <main>
-          <LocalHero />
-          <ServicesSection />
-          <ReviewsSection />
-          <GallerySection />
-          <BlogSection />
-          <FAQSection />
-          <StatsCTASection />
-        </main>
-        <LocalFooter />
-      </div>
-    </LocalContentProvider>
+    <LocalRoot theme={theme}>
+      <LocalContentProvider content={content}>
+        <div className="fb-has-sticky-bar">
+          <LocalHeader />
+          <main>
+            <LocalHero />
+            <ServicesSection />
+            <ReviewsSection />
+            <GallerySection />
+            <BlogSection />
+            <FAQSection />
+            <StatsCTASection />
+          </main>
+          <LocalFooter />
+        </div>
+      </LocalContentProvider>
+    </LocalRoot>
   );
 }
 `,

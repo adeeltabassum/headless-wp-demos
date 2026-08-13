@@ -7,6 +7,7 @@ import {
   renderFaviconFromCustomization,
   renderLogoFromCustomization,
 } from "./logoCustomization";
+import { getNicheLabel } from "./presets";
 
 export type GenerateProgress = {
   step: string;
@@ -90,16 +91,30 @@ export async function generateSiteContent(
   }
   onProgress?.({ step: "Generating hero copy", status: "done" });
 
-  step("Generating sidebar");
-  const sidebar = await callSection("sidebar", ctx);
-  if (sidebar) {
-    patch.sidebar = {
-      about: sidebar.about as string,
-      legal: sidebar.legal as string,
-      tags: sidebar.tags as string[],
-    };
+  // Niche sidebar / multi-page generation — skip for one-page SaaS
+  if (templateId !== "saas") {
+    step("Generating sidebar");
+    const sidebar = await callSection("sidebar", ctx);
+    if (sidebar) {
+      patch.sidebar = {
+        about: sidebar.about as string,
+        legal: sidebar.legal as string,
+        tags: sidebar.tags as string[],
+      };
+    }
+    onProgress?.({ step: "Generating sidebar", status: "done" });
+  } else {
+    step("Generating product blurb");
+    const sidebar = await callSection("sidebar", ctx);
+    if (sidebar) {
+      patch.sidebar = {
+        about: sidebar.about as string,
+        legal: sidebar.legal as string,
+        tags: sidebar.tags as string[],
+      };
+    }
+    onProgress?.({ step: "Generating product blurb", status: "done" });
   }
-  onProgress?.({ step: "Generating sidebar", status: "done" });
 
   step("Generating footer");
   const footer = await callSection("footer", ctx);
@@ -111,28 +126,81 @@ export async function generateSiteContent(
   }
   onProgress?.({ step: "Generating footer", status: "done" });
 
-  const enabled = draft.enabledPages || {};
-  const pageKeys = (
-    [
-      ["about", "about"],
-      ["faq", "faq"],
-      ["privacy", "privacy"],
-      ["terms", "terms"],
-      ["contact", "contactIntro"],
-    ] as const
-  ).filter(([key]) => enabled[key as keyof typeof enabled] !== false);
+  if (templateId !== "saas") {
+    const enabled = draft.enabledPages || {};
+    const pageKeys = (
+      [
+        ["about", "about"],
+        ["faq", "faq"],
+        ["privacy", "privacy"],
+        ["terms", "terms"],
+        ["contact", "contactIntro"],
+      ] as const
+    ).filter(([key]) => enabled[key as keyof typeof enabled] !== false);
 
-  patch.pages = { ...draft.pages };
-  for (const [, pageKey] of pageKeys) {
-    step(`Generating ${pageKey} page`);
-    const page = await callSection("page", { ...ctx, pageKey });
-    if (page?.blocks && Array.isArray(page.blocks)) {
-      patch.pages = { ...patch.pages, [pageKey]: { blocks: page.blocks as never } };
-    } else if (typeof page?.text === "string") {
-      // Legacy mock / older responses
-      patch.pages = { ...patch.pages, [pageKey]: page.text as string };
+    patch.pages = { ...draft.pages };
+    for (const [, pageKey] of pageKeys) {
+      step(`Generating ${pageKey} page`);
+      const page = await callSection("page", { ...ctx, pageKey });
+      if (page?.blocks && Array.isArray(page.blocks)) {
+        patch.pages = { ...patch.pages, [pageKey]: { blocks: page.blocks as never } };
+      } else if (typeof page?.text === "string") {
+        // Legacy mock / older responses
+        patch.pages = { ...patch.pages, [pageKey]: page.text as string };
+      }
+      onProgress?.({ step: `Generating ${pageKey} page`, status: "done" });
     }
-    onProgress?.({ step: `Generating ${pageKey} page`, status: "done" });
+  } else {
+    step("Generating FAQ");
+    const page = await callSection("page", { ...ctx, pageKey: "faq" });
+    if (page?.blocks && Array.isArray(page.blocks)) {
+      patch.pages = { ...draft.pages, faq: { blocks: page.blocks as never } };
+    }
+    onProgress?.({ step: "Generating FAQ", status: "done" });
+  }
+
+  // Tools / categories for SaaS + niche
+  if (templateId === "saas") {
+    const seed =
+      draft.categories?.length
+        ? draft.categories
+        : [
+            { label: "Automation", slug: "automation" },
+            { label: "Analytics", slug: "analytics" },
+            { label: "Integrations", slug: "integrations" },
+            { label: "Collaboration", slug: "collaboration" },
+            { label: "Reporting", slug: "reporting" },
+            { label: "Security", slug: "security" },
+          ];
+    const categories = seed.slice(0, 6).map((c) => ({ ...c }));
+    for (let i = 0; i < categories.length; i++) {
+      step(`Generating tool: ${categories[i].label}`);
+      const desc = await callSection("categoryDescription", { ...ctx, label: categories[i].label });
+      if (desc?.description) categories[i] = { ...categories[i], description: desc.description as string };
+      onProgress?.({ step: `Generating tool: ${categories[i].label}`, status: "done" });
+    }
+    patch.categories = categories;
+
+    step("Generating blog teasers");
+    const nicheLabel = getNicheLabel(draft.niche, draft.nicheCustom);
+    const arts = await callSection("articles", {
+      ...ctx,
+      categoryLabel: nicheLabel,
+      count: 3,
+    });
+    if (arts?.articles) {
+      patch.articles = (
+        arts.articles as Array<{ title: string; excerpt: string; blocks?: unknown; content?: string[] }>
+      ).map((a) => ({
+        title: a.title,
+        excerpt: a.excerpt,
+        blocks: a.blocks as never,
+        content: a.content,
+        category: nicheLabel,
+        image: stockPhotoUrl(a.title, draft.niche, "articleThumbnail"),
+      }));
+    }
+    onProgress?.({ step: "Generating blog teasers", status: "done" });
   }
 
   // Category descriptions + articles for niche blog
@@ -194,6 +262,16 @@ export async function generateSiteContent(
     templateImages.gallery = await Promise.all(
       ["Gallery 1", "Gallery 2", "Gallery 3", "Gallery 4"].map((l) =>
         callStockImage("articleThumbnail", l, draft.niche)
+      )
+    );
+  }
+
+  if (templateId === "saas") {
+    templateImages.heroBackground = templateImages.hero;
+    const toolLabels = (patch.categories || draft.categories || []).slice(0, 4);
+    templateImages.services = await Promise.all(
+      (toolLabels.length ? toolLabels : [{ label: "Feature" }]).map((c) =>
+        callStockImage("categoryTile", c.label, draft.niche)
       )
     );
   }

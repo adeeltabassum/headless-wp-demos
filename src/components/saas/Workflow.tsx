@@ -1,18 +1,26 @@
-import Image from 'next/image';
+"use client";
+
+import { useSaasContent } from "./SaasPreviewProvider";
 
 export default function Workflow() {
+  const { workflow, features } = useSaasContent();
+  const f0 = features[0] || { title: "Feature", description: "", image: "/saas/images/placeholder-hero.png" };
+  const f1 = features[1] || f0;
+  const f2 = features[2] || f0;
+  const f3 = features[3] || f0;
+
   return (
     <div className="elementor-element elementor-element-8506b09 e-flex e-con-boxed e-con e-parent" data-id="8506b09" data-element_type="container" data-settings='{"background_background":"classic"}'>
       <div className="e-con-inner">
         <div className="elementor-element elementor-element-fc300f9 e-con-full e-flex elementor-invisible e-con e-child" data-id="fc300f9" data-element_type="container" data-settings='{"animation":"fadeInUp","animation_mobile":"fadeIn","animation_delay":50}'>
           <div className="elementor-element elementor-element-26e3307 elementor-widget__width-inherit elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="26e3307" data-element_type="widget">
             <div className="elementor-widget-container">
-              <h2 className="elementor-heading-title elementor-size-default">Simple Workflow, Powerful Results</h2>
+              <h2 className="elementor-heading-title elementor-size-default">{workflow.title}</h2>
             </div>
           </div>
           <div className="elementor-element elementor-element-1b62967 elementor-widget__width-initial elementor-widget-mobile__width-inherit elementor-widget elementor-widget-heading" data-id="1b62967" data-element_type="widget">
             <div className="elementor-widget-container">
-              <p className="elementor-heading-title elementor-size-default">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut elit tellus, luctus nec ullamcorper mattis, pulvinar dapibus leo. Ut elit tellus, luctus nec.</p>
+              <p className="elementor-heading-title elementor-size-default">{workflow.description}</p>
             </div>
           </div>
         </div>
@@ -22,12 +30,12 @@ export default function Workflow() {
           <div className="elementor-element elementor-element-a15a8bc e-con-full e-flex e-con e-child" data-id="a15a8bc" data-element_type="container">
             <div className="elementor-element elementor-element-fb99ee9 elementor-widget elementor-widget-heading" data-id="fb99ee9" data-element_type="widget">
               <div className="elementor-widget-container">
-                <h2 className="elementor-heading-title elementor-size-default">Lorem ipsum</h2>
+                <h2 className="elementor-heading-title elementor-size-default">{f0.title}</h2>
               </div>
             </div>
             <div className="elementor-element elementor-element-0d9cbaa elementor-widget elementor-widget-heading" data-id="0d9cbaa" data-element_type="widget">
               <div className="elementor-widget-container">
-                <p className="elementor-heading-title elementor-size-default">Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis</p>
+                <p className="elementor-heading-title elementor-size-default">{f0.description}</p>
               </div>
             </div>
             <div className="elementor-element elementor-element-2ba5cdb elementor-position-left icn-align elementor-mobile-position-left elementor-view-default elementor-widget elementor-widget-icon-box" data-id="2ba5cdb" data-element_type="widget">
@@ -40,10 +48,10 @@ export default function Workflow() {
                   </div>
                   <div className="elementor-icon-box-content">
                     <h3 className="elementor-icon-box-title">
-                      <span>Lorem ipsum</span>
+                      <span>{f0.title}</span>
                     </h3>
                     <p className="elementor-icon-box-description">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis
+                      {f0.description}
                     </p>
                   </div>
                 </div>
@@ -59,10 +67,10 @@ export default function Workflow() {
                   </div>
                   <div className="elementor-icon-box-content">
                     <h3 className="elementor-icon-box-title">
-                      <span>Lorem ipsum</span>
+                      <span>{f0.title}</span>
                     </h3>
                     <p className="elementor-icon-box-description">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis
+                      {f0.description}
                     </p>
                   </div>
                 </div>
@@ -71,7 +79,8 @@ export default function Workflow() {
           </div>
           <div className="elementor-element elementor-element-73417b1 elementor-widget__width-inherit elementor-widget elementor-widget-image" data-id="73417b1" data-element_type="widget">
             <div className="elementor-widget-container">
-              <Image decoding="async" src="/saas/images/placeholder-hero.png" title="" alt="" loading="lazy" width={800} height={600} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img decoding="async" src={f0.image || "/saas/images/placeholder-hero.png"} title="" alt="" loading="lazy" width={800} height={600} />
             </div>
           </div>
         </div>
@@ -81,12 +90,12 @@ export default function Workflow() {
           <div className="elementor-element elementor-element-37b7bcf e-con-full e-flex e-con e-child" data-id="37b7bcf" data-element_type="container">
             <div className="elementor-element elementor-element-4675006 elementor-widget elementor-widget-heading" data-id="4675006" data-element_type="widget">
               <div className="elementor-widget-container">
-                <h2 className="elementor-heading-title elementor-size-default">Lorem ipsum</h2>
+                <h2 className="elementor-heading-title elementor-size-default">{f1.title}</h2>
               </div>
             </div>
             <div className="elementor-element elementor-element-9f738dd elementor-widget elementor-widget-heading" data-id="9f738dd" data-element_type="widget">
               <div className="elementor-widget-container">
-                <p className="elementor-heading-title elementor-size-default">Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis</p>
+                <p className="elementor-heading-title elementor-size-default">{f1.description}</p>
               </div>
             </div>
             <div className="elementor-element elementor-element-ec31a26 elementor-position-left icn-align elementor-mobile-position-left elementor-view-default elementor-widget elementor-widget-icon-box" data-id="ec31a26" data-element_type="widget">
@@ -99,10 +108,10 @@ export default function Workflow() {
                   </div>
                   <div className="elementor-icon-box-content">
                     <h3 className="elementor-icon-box-title">
-                      <span>Lorem ipsum</span>
+                      <span>{f1.title}</span>
                     </h3>
                     <p className="elementor-icon-box-description">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis
+                      {f1.description}
                     </p>
                   </div>
                 </div>
@@ -118,10 +127,10 @@ export default function Workflow() {
                   </div>
                   <div className="elementor-icon-box-content">
                     <h3 className="elementor-icon-box-title">
-                      <span>Lorem ipsum</span>
+                      <span>{f1.title}</span>
                     </h3>
                     <p className="elementor-icon-box-description">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis
+                      {f1.description}
                     </p>
                   </div>
                 </div>
@@ -130,7 +139,8 @@ export default function Workflow() {
           </div>
           <div className="elementor-element elementor-element-73b6fd2 elementor-widget__width-inherit elementor-widget elementor-widget-image" data-id="73b6fd2" data-element_type="widget">
             <div className="elementor-widget-container">
-              <Image decoding="async" src="/saas/images/placeholder-hero.png" title="" alt="" loading="lazy" width={800} height={600} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img decoding="async" src={f1.image || "/saas/images/placeholder-hero.png"} title="" alt="" loading="lazy" width={800} height={600} />
             </div>
           </div>
         </div>
@@ -140,12 +150,12 @@ export default function Workflow() {
           <div className="elementor-element elementor-element-1317c94 e-con-full e-flex e-con e-child" data-id="1317c94" data-element_type="container">
             <div className="elementor-element elementor-element-f68f0d4 elementor-widget elementor-widget-heading" data-id="f68f0d4" data-element_type="widget">
               <div className="elementor-widget-container">
-                <h2 className="elementor-heading-title elementor-size-default">Lorem ipsum</h2>
+                <h2 className="elementor-heading-title elementor-size-default">{f2.title}</h2>
               </div>
             </div>
             <div className="elementor-element elementor-element-f8dd6c3 elementor-widget elementor-widget-heading" data-id="f8dd6c3" data-element_type="widget">
               <div className="elementor-widget-container">
-                <p className="elementor-heading-title elementor-size-default">Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis</p>
+                <p className="elementor-heading-title elementor-size-default">{f2.description}</p>
               </div>
             </div>
             <div className="elementor-element elementor-element-b175b37 elementor-position-left icn-align elementor-mobile-position-left elementor-view-default elementor-widget elementor-widget-icon-box" data-id="b175b37" data-element_type="widget">
@@ -158,10 +168,10 @@ export default function Workflow() {
                   </div>
                   <div className="elementor-icon-box-content">
                     <h3 className="elementor-icon-box-title">
-                      <span>Lorem ipsum</span>
+                      <span>{f2.title}</span>
                     </h3>
                     <p className="elementor-icon-box-description">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis
+                      {f2.description}
                     </p>
                   </div>
                 </div>
@@ -177,10 +187,10 @@ export default function Workflow() {
                   </div>
                   <div className="elementor-icon-box-content">
                     <h3 className="elementor-icon-box-title">
-                      <span>Lorem ipsum</span>
+                      <span>{f2.title}</span>
                     </h3>
                     <p className="elementor-icon-box-description">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis
+                      {f2.description}
                     </p>
                   </div>
                 </div>
@@ -189,7 +199,8 @@ export default function Workflow() {
           </div>
           <div className="elementor-element elementor-element-c84b1b1 elementor-widget__width-inherit elementor-widget elementor-widget-image" data-id="c84b1b1" data-element_type="widget">
             <div className="elementor-widget-container">
-              <Image decoding="async" src="/saas/images/placeholder-hero.png" title="" alt="" loading="lazy" width={800} height={600} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img decoding="async" src={f2.image || "/saas/images/placeholder-hero.png"} title="" alt="" loading="lazy" width={800} height={600} />
             </div>
           </div>
         </div>
@@ -199,12 +210,12 @@ export default function Workflow() {
           <div className="elementor-element elementor-element-6a00489 e-con-full e-flex e-con e-child" data-id="6a00489" data-element_type="container">
             <div className="elementor-element elementor-element-ccd6848 elementor-widget elementor-widget-heading" data-id="ccd6848" data-element_type="widget">
               <div className="elementor-widget-container">
-                <h2 className="elementor-heading-title elementor-size-default">Lorem ipsum</h2>
+                <h2 className="elementor-heading-title elementor-size-default">{f3.title}</h2>
               </div>
             </div>
             <div className="elementor-element elementor-element-3493ef2 elementor-widget elementor-widget-heading" data-id="3493ef2" data-element_type="widget">
               <div className="elementor-widget-container">
-                <p className="elementor-heading-title elementor-size-default">Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis</p>
+                <p className="elementor-heading-title elementor-size-default">{f3.description}</p>
               </div>
             </div>
             <div className="elementor-element elementor-element-d993f44 elementor-position-left icn-align elementor-mobile-position-left elementor-view-default elementor-widget elementor-widget-icon-box" data-id="d993f44" data-element_type="widget">
@@ -217,10 +228,10 @@ export default function Workflow() {
                   </div>
                   <div className="elementor-icon-box-content">
                     <h3 className="elementor-icon-box-title">
-                      <span>Lorem ipsum</span>
+                      <span>{f3.title}</span>
                     </h3>
                     <p className="elementor-icon-box-description">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis
+                      {f3.description}
                     </p>
                   </div>
                 </div>
@@ -236,10 +247,10 @@ export default function Workflow() {
                   </div>
                   <div className="elementor-icon-box-content">
                     <h3 className="elementor-icon-box-title">
-                      <span>Lorem ipsum</span>
+                      <span>{f3.title}</span>
                     </h3>
                     <p className="elementor-icon-box-description">
-                      Lorem ipsum dolor sit amet, consectetur adipiscing elit ut aliquam, purus sit amet luctus venenatis
+                      {f3.description}
                     </p>
                   </div>
                 </div>
@@ -248,7 +259,8 @@ export default function Workflow() {
           </div>
           <div className="elementor-element elementor-element-091c5da elementor-widget__width-inherit elementor-widget elementor-widget-image" data-id="091c5da" data-element_type="widget">
             <div className="elementor-widget-container">
-              <Image decoding="async" src="/saas/images/placeholder-hero.png" title="" alt="" loading="lazy" width={800} height={600} />
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img decoding="async" src={f3.image || "/saas/images/placeholder-hero.png"} title="" alt="" loading="lazy" width={800} height={600} />
             </div>
           </div>
         </div>

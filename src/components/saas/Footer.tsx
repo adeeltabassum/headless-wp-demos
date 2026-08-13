@@ -1,7 +1,12 @@
-import Link from 'next/link';
-import Image from 'next/image';
+"use client";
+
+import Link from "next/link";
+import { useSaasContent } from "./SaasPreviewProvider";
 
 export default function SaasFooter() {
+  const content = useSaasContent();
+  const home = content.siteBase || "/saas";
+
   return (
     <footer data-elementor-type="footer" data-elementor-id="903" className="elementor elementor-903 elementor-location-footer" data-elementor-post-type="elementor_library">
       <div className="elementor-element elementor-element-191cb272 e-flex e-con-boxed e-con e-parent" data-id="191cb272" data-element_type="container">
@@ -10,14 +15,15 @@ export default function SaasFooter() {
             <div className="elementor-element elementor-element-11e32701 e-con-full e-flex e-con e-child" data-id="11e32701" data-element_type="container">
               <div className="elementor-element elementor-element-44fc858e footer elementor-widget-tablet__width-auto elementor-widget elementor-widget-theme-site-logo elementor-widget-image" data-id="44fc858e" data-element_type="widget">
                 <div className="elementor-widget-container">
-                  <Link href="/saas">
-                    <Image width={175} height={46} src="/saas/images/logo.png" className="attachment-large size-large wp-image-407" alt="SAAS Template" />
+                  <Link href={home}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img width={175} height={46} src={content.logo} className="attachment-large size-large wp-image-407" alt={content.siteName} />
                   </Link>
                 </div>
               </div>
               <div className="elementor-element elementor-element-ba51fa elementor-widget__width-initial elementor-widget-tablet__width-inherit elementor-widget elementor-widget-text-editor" data-id="ba51fa" data-element_type="widget">
                 <div className="elementor-widget-container">
-                  <p>Mauris commodo feugiat donec pellentesque feugiat in fringilla adipiscing. Nunc hendrerit faucib.</p>
+                  <p>{content.footer.blurb}</p>
                 </div>
               </div>
               <div className="elementor-element elementor-element-5635e30 e-grid-align-left footer e-grid-align-mobile-center elementor-shape-rounded elementor-grid-0 elementor-widget elementor-widget-social-icons" data-id="5635e30" data-element_type="widget">
@@ -51,26 +57,13 @@ export default function SaasFooter() {
               <div className="elementor-element elementor-element-e659223 elementor-icon-list--layout-traditional elementor-list-item-link-full_width elementor-widget elementor-widget-icon-list" data-id="e659223" data-element_type="widget">
                 <div className="elementor-widget-container">
                   <ul className="elementor-icon-list-items">
-                    <li className="elementor-icon-list-item">
-                      <a href="#Product">
-                        <span className="elementor-icon-list-text">Product</span>
-                      </a>
-                    </li>
-                    <li className="elementor-icon-list-item">
-                      <a href="#Tools">
-                        <span className="elementor-icon-list-text">Tools</span>
-                      </a>
-                    </li>
-                    <li className="elementor-icon-list-item">
-                      <a href="#use-case">
-                        <span className="elementor-icon-list-text">Use Case</span>
-                      </a>
-                    </li>
-                    <li className="elementor-icon-list-item">
-                      <a href="#faq">
-                        <span className="elementor-icon-list-text">FAQ</span>
-                      </a>
-                    </li>
+                    {content.nav.map((link) => (
+                      <li className="elementor-icon-list-item" key={link.href}>
+                        <a href={link.href}>
+                          <span className="elementor-icon-list-text">{link.label}</span>
+                        </a>
+                      </li>
+                    ))}
                   </ul>
                 </div>
               </div>
@@ -119,7 +112,7 @@ export default function SaasFooter() {
             </div>
             <div className="elementor-element elementor-element-4acf9e57 elementor-widget__width-auto elementor-widget elementor-widget-heading" data-id="4acf9e57" data-element_type="widget">
               <div className="elementor-widget-container">
-                <p className="elementor-heading-title elementor-size-default"><span id="current-year">2025</span> © <b>Lorem Company</b>. All Rights Reserved</p>
+                <p className="elementor-heading-title elementor-size-default"><span id="current-year">{new Date().getFullYear()}</span> © {content.footer.copyright}</p>
               </div>
             </div>
           </div>

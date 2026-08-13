@@ -46,6 +46,12 @@
 .saas-page,
 .elementor-4837 {
   overflow-x: clip;
+  background-color: #ffffff;
+}
+
+.saas-page {
+  background-color: #ffffff;
+  color: var(--e-global-color-eee44a8, #111827);
 }
 
 @media (max-width: 1024px) {
@@ -754,4 +760,47 @@ label.elementor-field-label {
     font-size: var(--e-global-typography-accent-font-size);
     line-height: var(--e-global-typography-accent-line-height);
   }
+}
+
+/* Studio brand CTAs — solid brand fill + readable on-brand text/icons */
+.saas-page .main-btn .elementor-button,
+.saas-page .elementor-430 .elementor-element-ae294ae .elementor-button,
+.saas-page .elementor-element-f4b1aa3 .elementor-button,
+.saas-page .elementor-element-b8a6fd7 .elementor-button,
+.saas-page .elementor-element-6f56854 .elementor-button {
+  background-color: var(--saas-brand, #111827) !important;
+  border-color: var(--saas-brand, #111827) !important;
+  color: var(--saas-on-brand, #ffffff) !important;
+}
+
+.saas-page .main-btn .elementor-button .elementor-button-text,
+.saas-page .main-btn .elementor-button .elementor-button-icon,
+.saas-page .elementor-430 .elementor-element-ae294ae .elementor-button .elementor-button-text,
+.saas-page .elementor-430 .elementor-element-ae294ae .elementor-button .elementor-button-icon,
+.saas-page .elementor-element-f4b1aa3 .elementor-button .elementor-button-text,
+.saas-page .elementor-element-f4b1aa3 .elementor-button .elementor-button-icon,
+.saas-page .elementor-element-b8a6fd7 .elementor-button .elementor-button-text,
+.saas-page .elementor-element-b8a6fd7 .elementor-button .elementor-button-icon,
+.saas-page .elementor-element-6f56854 .elementor-button .elementor-button-text,
+.saas-page .elementor-element-6f56854 .elementor-button .elementor-button-icon {
+  color: var(--saas-on-brand, #ffffff) !important;
+}
+
+.saas-page .main-btn .elementor-button svg,
+.saas-page .elementor-430 .elementor-element-ae294ae .elementor-button svg,
+.saas-page .elementor-element-f4b1aa3 .elementor-button svg,
+.saas-page .elementor-element-b8a6fd7 .elementor-button svg,
+.saas-page .elementor-element-6f56854 .elementor-button svg {
+  fill: var(--saas-on-brand, #ffffff) !important;
+  color: var(--saas-on-brand, #ffffff) !important;
+}
+
+.saas-page .elementor-4822 .elementor-element.elementor-element-aee9fcc,
+.saas-page .elementor-4822 .elementor-element.elementor-element-aee9fcc .elementor-widget-container {
+  color: var(--e-global-color-text) !important;
+}
+
+.saas-page .elementor-4837 .elementor-element.elementor-element-35d9f8a .e-n-accordion-item > .e-con {
+  background-color: #ffffff;
+  padding: 8px 24px 24px;
 }

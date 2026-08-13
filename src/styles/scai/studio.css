@@ -1026,6 +1026,7 @@
 }
 
 .scai-studio .builder-preview-frame--saas {
-  background: var(--scai-bg);
+  /* SaaS template is a light Elementor page — never inherit Studio dark chrome */
+  background: #ffffff;
 }
 

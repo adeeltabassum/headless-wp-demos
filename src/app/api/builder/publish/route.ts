@@ -4,7 +4,7 @@ import path from "path";
 import { BuilderDraftSchema } from "@/lib/builder/schema";
 import { deriveContent, deriveTheme } from "@/lib/builder/derive";
 import { deriveLocalContent, deriveLocalTheme } from "@/lib/builder/deriveLocal";
-import { deriveSaasContent } from "@/lib/builder/deriveSaas";
+import { deriveSaasContent, deriveSaasTheme } from "@/lib/builder/deriveSaas";
 import { generateAllSiteFiles } from "@/lib/builder/generateSiteFiles";
 import { generateLocalSiteFiles } from "@/lib/builder/generateLocalSiteFiles";
 import { generateSaasSiteFiles } from "@/lib/builder/generateSaasSiteFiles";
@@ -70,8 +70,12 @@ export async function POST(req: NextRequest) {
     publishSummary = { categories: draft.categories?.map((c) => c.label).join(", "), articles: 0 };
   } else if (templateId === "saas") {
     const saasContent = deriveSaasContent(draft);
-    siteFiles = generateSaasSiteFiles(draft.slug, saasContent);
-    publishSummary = { articles: 0 };
+    const saasTheme = deriveSaasTheme(draft);
+    siteFiles = generateSaasSiteFiles(draft.slug, saasContent, saasTheme);
+    publishSummary = {
+      categories: draft.categories?.map((c) => c.label).join(", "),
+      articles: draft.articles?.length || 0,
+    };
   } else {
     const rawContent = deriveContent(draft);
     const theme = deriveTheme(draft);

@@ -7,7 +7,8 @@ import {
   renderFaviconFromCustomization,
   renderLogoFromCustomization,
 } from "./logoCustomization";
-import { getNicheLabel } from "./presets";
+import { getNicheLabel, getPhotoSearchNiche } from "./presets";
+import { DEFAULT_ECOMMERCE_CATEGORIES } from "./schema";
 
 export type GenerateProgress = {
   step: string;
@@ -60,6 +61,7 @@ export async function generateSiteContent(
 ): Promise<Partial<BuilderDraft>> {
   const patch: Partial<BuilderDraft> = {};
   const templateId = draft.templateId || "niche-template";
+  const photoNiche = getPhotoSearchNiche(draft);
   const ctx = {
     siteName: draft.siteName,
     niche: draft.niche,
@@ -91,8 +93,8 @@ export async function generateSiteContent(
   }
   onProgress?.({ step: "Generating hero copy", status: "done" });
 
-  // Niche sidebar / multi-page generation — skip for one-page SaaS
-  if (templateId !== "saas") {
+  // Niche sidebar / multi-page generation — skip for one-page SaaS / ecommerce
+  if (templateId !== "saas" && templateId !== "ecommerce") {
     step("Generating sidebar");
     const sidebar = await callSection("sidebar", ctx);
     if (sidebar) {
@@ -104,7 +106,7 @@ export async function generateSiteContent(
     }
     onProgress?.({ step: "Generating sidebar", status: "done" });
   } else {
-    step("Generating product blurb");
+    step(templateId === "ecommerce" ? "Generating store blurb" : "Generating product blurb");
     const sidebar = await callSection("sidebar", ctx);
     if (sidebar) {
       patch.sidebar = {
@@ -113,7 +115,10 @@ export async function generateSiteContent(
         tags: sidebar.tags as string[],
       };
     }
-    onProgress?.({ step: "Generating product blurb", status: "done" });
+    onProgress?.({
+      step: templateId === "ecommerce" ? "Generating store blurb" : "Generating product blurb",
+      status: "done",
+    });
   }
 
   step("Generating footer");
@@ -126,7 +131,7 @@ export async function generateSiteContent(
   }
   onProgress?.({ step: "Generating footer", status: "done" });
 
-  if (templateId !== "saas") {
+  if (templateId !== "saas" && templateId !== "ecommerce") {
     const enabled = draft.enabledPages || {};
     const pageKeys = (
       [
@@ -159,11 +164,11 @@ export async function generateSiteContent(
     onProgress?.({ step: "Generating FAQ", status: "done" });
   }
 
-  // Tools / categories for SaaS + niche
-  if (templateId === "saas") {
-    const seed =
-      draft.categories?.length
-        ? draft.categories
+  // Tools / categories for SaaS + product categories for ecommerce
+  if (templateId === "saas" || templateId === "ecommerce") {
+    const defaultCats =
+      templateId === "ecommerce"
+        ? DEFAULT_ECOMMERCE_CATEGORIES.map((c) => ({ ...c }))
         : [
             { label: "Automation", slug: "automation" },
             { label: "Analytics", slug: "analytics" },
@@ -172,12 +177,14 @@ export async function generateSiteContent(
             { label: "Reporting", slug: "reporting" },
             { label: "Security", slug: "security" },
           ];
+    const seed = draft.categories?.length ? draft.categories : defaultCats;
     const categories = seed.slice(0, 6).map((c) => ({ ...c }));
     for (let i = 0; i < categories.length; i++) {
-      step(`Generating tool: ${categories[i].label}`);
+      const label = templateId === "ecommerce" ? "category" : "tool";
+      step(`Generating ${label}: ${categories[i].label}`);
       const desc = await callSection("categoryDescription", { ...ctx, label: categories[i].label });
       if (desc?.description) categories[i] = { ...categories[i], description: desc.description as string };
-      onProgress?.({ step: `Generating tool: ${categories[i].label}`, status: "done" });
+      onProgress?.({ step: `Generating ${label}: ${categories[i].label}`, status: "done" });
     }
     patch.categories = categories;
 
@@ -185,7 +192,7 @@ export async function generateSiteContent(
     const nicheLabel = getNicheLabel(draft.niche, draft.nicheCustom);
     const arts = await callSection("articles", {
       ...ctx,
-      categoryLabel: nicheLabel,
+      categoryLabel: templateId === "ecommerce" ? photoNiche : nicheLabel,
       count: 3,
     });
     if (arts?.articles) {
@@ -196,8 +203,12 @@ export async function generateSiteContent(
         excerpt: a.excerpt,
         blocks: a.blocks as never,
         content: a.content,
-        category: nicheLabel,
-        image: stockPhotoUrl(a.title, draft.niche, "articleThumbnail"),
+        category: templateId === "ecommerce" ? photoNiche : nicheLabel,
+        image: stockPhotoUrl(
+          `${photoNiche} ${a.title}`,
+          templateId === "ecommerce" ? photoNiche : draft.niche,
+          "articleThumbnail"
+        ),
       }));
     }
     onProgress?.({ step: "Generating blog teasers", status: "done" });
@@ -248,8 +259,15 @@ export async function generateSiteContent(
 
   step("Adding stock images");
   const templateImages = { ...draft.templateImages };
+  const heroLabel =
+    templateId === "ecommerce"
+      ? `${photoNiche} products storefront`
+      : draft.siteName;
+  const heroNiche = templateId === "ecommerce" ? photoNiche : draft.niche;
   templateImages.hero =
-    draft.hero?.background || templateImages.hero || (await callStockImage("hero", draft.siteName, draft.niche));
+    draft.hero?.background ||
+    templateImages.hero ||
+    (await callStockImage("hero", heroLabel, heroNiche));
   patch.hero = { ...patch.hero, ...draft.hero, background: templateImages.hero };
 
   if (templateId === "local") {
@@ -272,6 +290,16 @@ export async function generateSiteContent(
     templateImages.services = await Promise.all(
       (toolLabels.length ? toolLabels : [{ label: "Feature" }]).map((c) =>
         callStockImage("categoryTile", c.label, draft.niche)
+      )
+    );
+  }
+
+  if (templateId === "ecommerce") {
+    templateImages.heroBackground = templateImages.hero;
+    const productLabels = (patch.categories || draft.categories || []).slice(0, 6);
+    templateImages.services = await Promise.all(
+      (productLabels.length ? productLabels : [{ label: "Product" }]).map((c) =>
+        callStockImage("categoryTile", `${photoNiche} ${c.label}`, photoNiche)
       )
     );
   }

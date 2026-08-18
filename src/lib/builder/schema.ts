@@ -128,7 +128,7 @@ export type NicheThemeInput = z.infer<typeof NicheThemeSchema>;
  * non-technical person instead of requiring every one of the ~15 content
  * fields to be filled in by hand.
  */
-export const TEMPLATE_IDS = ["niche-template", "local", "saas"] as const;
+export const TEMPLATE_IDS = ["niche-template", "local", "saas", "ecommerce"] as const;
 export type TemplateId = (typeof TEMPLATE_IDS)[number];
 
 export const EnabledPagesSchema = z.object({
@@ -137,6 +137,12 @@ export const EnabledPagesSchema = z.object({
   privacy: z.boolean().default(true),
   terms: z.boolean().default(true),
   contact: z.boolean().default(true),
+  /** Ecommerce-only page toggles (ignored by niche blog) */
+  blog: z.boolean().default(true).optional(),
+  track: z.boolean().default(true).optional(),
+  shipping: z.boolean().default(true).optional(),
+  refund: z.boolean().default(true).optional(),
+  disclaimer: z.boolean().default(true).optional(),
 });
 
 export const LogoWordSchema = z.object({
@@ -267,6 +273,29 @@ export const DEFAULT_ENABLED_PAGES = {
   terms: true,
   contact: true,
 } as const;
+
+/** Defaults when Studio template is ecommerce */
+export const DEFAULT_ECOMMERCE_ENABLED_PAGES = {
+  about: true,
+  faq: false,
+  privacy: true,
+  terms: true,
+  contact: true,
+  blog: true,
+  track: true,
+  shipping: true,
+  refund: true,
+  disclaimer: true,
+} as const;
+
+export const DEFAULT_ECOMMERCE_CATEGORIES = [
+  { label: "New Arrivals", slug: "new-arrivals" },
+  { label: "Bestsellers", slug: "bestsellers" },
+  { label: "Essentials", slug: "essentials" },
+  { label: "Gift Sets", slug: "gift-sets" },
+  { label: "Seasonal", slug: "seasonal" },
+  { label: "Accessories", slug: "accessories" },
+] as const;
 
 export function createDefaultDraft(): Partial<BuilderDraft> {
   return {

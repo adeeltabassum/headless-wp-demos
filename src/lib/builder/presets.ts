@@ -17,6 +17,7 @@ export const NICHE_OPTIONS = [
   { value: "education", label: "Education & Learning" },
   { value: "local-business", label: "Local Business / Services" },
   { value: "saas-software", label: "SaaS / Software" },
+  { value: "ecommerce", label: "Ecommerce / Online Store" },
   { value: "other", label: "Other (custom)" },
 ] as const;
 
@@ -123,6 +124,16 @@ export function suggestTemplateId(niche: string | undefined, nicheCustom?: strin
   const key = niche === "other" ? nicheCustom?.toLowerCase() || "" : niche || "";
   if (key.includes("local") || niche === "local-business") return "local";
   if (key.includes("saas") || key.includes("software") || niche === "saas-software") return "saas";
+  if (
+    key.includes("ecommerce") ||
+    key.includes("e-commerce") ||
+    key.includes("shop") ||
+    key.includes("store") ||
+    key.includes("retail") ||
+    niche === "ecommerce"
+  ) {
+    return "ecommerce";
+  }
   return "niche-template";
 }
 
@@ -141,6 +152,28 @@ export function getNicheLabel(niche: string | undefined, nicheCustom?: string): 
   if (!niche) return nicheCustom || "this topic";
   if (niche === "other") return nicheCustom || "this topic";
   return NICHE_OPTIONS.find((n) => n.value === niche)?.label || niche;
+}
+
+/**
+ * Photo / stock-image search context. For ecommerce, prefer the store name or
+ * custom niche text over the generic "Ecommerce / Online Store" label so
+ * Pexels/Picsum seeds match the product (e.g. mugs, not lighthouses).
+ */
+export function getPhotoSearchNiche(draft: {
+  niche?: string;
+  nicheCustom?: string;
+  siteName?: string;
+}): string {
+  const custom = draft.nicheCustom?.trim();
+  const site = draft.siteName?.trim();
+  if (draft.niche === "ecommerce" || draft.niche === "other") {
+    if (custom) return custom;
+    if (site) return site;
+    return "retail product store";
+  }
+  const label = getNicheLabel(draft.niche, draft.nicheCustom);
+  if (site && label) return `${site} ${label}`;
+  return label || site || "business";
 }
 
 export function getToneLabel(tone: string | undefined): string {

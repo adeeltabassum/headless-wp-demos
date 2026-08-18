@@ -48,5 +48,17 @@ export const siteTemplates: SiteTemplate[] = [
     previewGrad: "linear-gradient(135deg, #0a0a0a 0%, #12241f 40%, #40edc3 100%)",
     screenshot: "/gallery/screenshots/saas.png",
   },
+  {
+    id: "ecommerce",
+    name: "Ecommerce (Master)",
+    description: "Master ecommerce skeleton — shop, blog, about, contact, checkout, and legal pages.",
+    href: "/ecommerce",
+    tag: "Ecommerce",
+    pages: 15,
+    status: "Live",
+    stack: "Next.js · SCAI Studio",
+    previewGrad: "linear-gradient(135deg, #111 0%, #2a2a2a 50%, #d4d4d4 100%)",
+    screenshot: "/gallery/screenshots/ecommerce.png",
+  },
 ];
 

@@ -11,6 +11,7 @@ const pages = [
   { id: "niche-template", url: "http://localhost:3000/niche-template" },
   { id: "local", url: "http://localhost:3000/local" },
   { id: "saas", url: "http://localhost:3000/saas" },
+  { id: "ecommerce", url: "http://localhost:3000/ecommerce" },
 ];
 
 const browser = await chromium.launch({ headless: true });

@@ -5,9 +5,11 @@ import { BuilderDraftSchema } from "@/lib/builder/schema";
 import { deriveContent, deriveTheme } from "@/lib/builder/derive";
 import { deriveLocalContent, deriveLocalTheme } from "@/lib/builder/deriveLocal";
 import { deriveSaasContent, deriveSaasTheme } from "@/lib/builder/deriveSaas";
+import { deriveEcommerceContent, deriveEcommerceTheme } from "@/lib/builder/deriveEcommerce";
 import { generateAllSiteFiles } from "@/lib/builder/generateSiteFiles";
 import { generateLocalSiteFiles } from "@/lib/builder/generateLocalSiteFiles";
 import { generateSaasSiteFiles } from "@/lib/builder/generateSaasSiteFiles";
+import { generateEcommerceSiteFiles } from "@/lib/builder/generateEcommerceSiteFiles";
 import { extractDraftImages } from "@/lib/builder/extractImages";
 import { isSlugTaken, upsertEntry, type SiteRegistryEntry } from "@/lib/sites/registry";
 import { isGithubConfigured, commitFilesAndOpenPr, type CommitFile } from "@/lib/builder/github";
@@ -72,6 +74,14 @@ export async function POST(req: NextRequest) {
     const saasContent = deriveSaasContent(draft);
     const saasTheme = deriveSaasTheme(draft);
     siteFiles = generateSaasSiteFiles(draft.slug, saasContent, saasTheme);
+    publishSummary = {
+      categories: draft.categories?.map((c) => c.label).join(", "),
+      articles: draft.articles?.length || 0,
+    };
+  } else if (templateId === "ecommerce") {
+    const ecommerceContent = deriveEcommerceContent(draft);
+    const ecommerceTheme = deriveEcommerceTheme(draft);
+    siteFiles = generateEcommerceSiteFiles(draft.slug, ecommerceContent, ecommerceTheme);
     publishSummary = {
       categories: draft.categories?.map((c) => c.label).join(", "),
       articles: draft.articles?.length || 0,

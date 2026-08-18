@@ -3,7 +3,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import { defaultNicheTheme } from "@/lib/niche-template/theme";
 import { IMAGE_SLOTS } from "@/lib/niche-template/images";
-import { slugify, type BuilderCategorySchema, DEFAULT_ENABLED_PAGES } from "@/lib/builder/schema";
+import { slugify, type BuilderCategorySchema, DEFAULT_ENABLED_PAGES, DEFAULT_ECOMMERCE_ENABLED_PAGES, DEFAULT_ECOMMERCE_CATEGORIES } from "@/lib/builder/schema";
 import type { WorkingDraft } from "@/lib/builder/mergePatch";
 import {
   DESIGN_SYSTEM_PRESETS,
@@ -73,9 +73,31 @@ export function WizardPanel({
   const fileRef = useRef<HTMLInputElement>(null);
 
   const theme = { ...defaultNicheTheme, ...(draft.theme || {}) };
-  const enabled = { ...DEFAULT_ENABLED_PAGES, ...draft.enabledPages };
+  const templateId = draft.templateId || "niche-template";
+  const isEcommerce = templateId === "ecommerce";
+  const enabled = isEcommerce
+    ? { ...DEFAULT_ECOMMERCE_ENABLED_PAGES, ...draft.enabledPages }
+    : { ...DEFAULT_ENABLED_PAGES, ...draft.enabledPages };
   const categories: BuilderCategory[] = draft.categories || [];
-  const isNicheBlog = (draft.templateId || "niche-template") === "niche-template";
+  const isNicheBlog = templateId === "niche-template";
+  const showCategories =
+    isNicheBlog || isEcommerce || templateId === "local" || templateId === "saas";
+  const categoriesLabel =
+    isEcommerce
+      ? "Product categories"
+      : templateId === "local"
+        ? "Services"
+        : templateId === "saas"
+          ? "Tools / features"
+          : "Categories (header nav)";
+  const categoriesHint =
+    isEcommerce
+      ? "These become shop filters and homepage category tiles. Edit names to match your store (e.g. Travel Mugs)."
+      : templateId === "local"
+        ? "Optional — mapped onto service cards on the homepage."
+        : templateId === "saas"
+          ? "Optional — mapped onto Tools and feature sections."
+          : "Optional — 2–4 topics appear in the header and as homepage tiles.";
 
   const suggestedTemplate = useMemo(
     () => suggestTemplateId(draft.niche, draft.nicheCustom),
@@ -199,20 +221,58 @@ export function WizardPanel({
   }
 
   function addCategory() {
-    onChange({ categories: [...categories, { label: `Topic ${categories.length + 1}` }] });
+    const label = isEcommerce
+      ? `Category ${categories.length + 1}`
+      : `Topic ${categories.length + 1}`;
+    onChange({
+      categories: [
+        ...categories,
+        { label, slug: slugify(label) || `category-${categories.length + 1}` },
+      ],
+    });
   }
 
   function removeCategory(i: number) {
     onChange({ categories: categories.filter((_, idx) => idx !== i) });
   }
 
-  function togglePage(key: keyof typeof DEFAULT_ENABLED_PAGES) {
+  function seedEcommerceDefaults() {
+    onChange({
+      enabledPages: { ...DEFAULT_ECOMMERCE_ENABLED_PAGES },
+      categories: DEFAULT_ECOMMERCE_CATEGORIES.map((c) => ({ ...c })),
+    });
+  }
+
+  function togglePage(key: keyof typeof DEFAULT_ECOMMERCE_ENABLED_PAGES) {
     onChange({ enabledPages: { ...enabled, [key]: !enabled[key] } });
+  }
+
+  function selectTemplate(id: WorkingDraft["templateId"]) {
+    if (id === "ecommerce") {
+      onChange({
+        templateId: id,
+        enabledPages: { ...DEFAULT_ECOMMERCE_ENABLED_PAGES },
+        categories:
+          draft.categories?.length
+            ? draft.categories
+            : DEFAULT_ECOMMERCE_CATEGORIES.map((c) => ({ ...c })),
+      });
+      return;
+    }
+    onChange({ templateId: id });
   }
 
   function goNext() {
     if (step === "business") setStep("branding");
-    else if (step === "branding") setStep("structure");
+    else if (step === "branding") {
+      if (isEcommerce && (!draft.categories || draft.categories.length === 0)) {
+        onChange({
+          enabledPages: { ...DEFAULT_ECOMMERCE_ENABLED_PAGES, ...draft.enabledPages },
+          categories: DEFAULT_ECOMMERCE_CATEGORIES.map((c) => ({ ...c })),
+        });
+      }
+      setStep("structure");
+    }
   }
 
   function goBack() {
@@ -274,6 +334,18 @@ export function WizardPanel({
                 value={draft.niche || ""}
                 onChange={(e) => {
                   const niche = e.target.value;
+                  if (niche === "ecommerce") {
+                    onChange({
+                      niche,
+                      templateId: "ecommerce",
+                      enabledPages: { ...DEFAULT_ECOMMERCE_ENABLED_PAGES },
+                      categories:
+                        draft.categories?.length
+                          ? draft.categories
+                          : DEFAULT_ECOMMERCE_CATEGORIES.map((c) => ({ ...c })),
+                    });
+                    return;
+                  }
                   onChange({
                     niche,
                     templateId: suggestTemplateId(niche, draft.nicheCustom),
@@ -300,20 +372,32 @@ export function WizardPanel({
             </div>
           </div>
 
-          {draft.niche === "other" && (
+          {(draft.niche === "other" || draft.niche === "ecommerce") && (
             <div className="builder-field">
-              <label>Describe your niche</label>
+              <label>
+                {draft.niche === "ecommerce" ? "What do you sell?" : "Describe your niche"}
+              </label>
               <input
                 type="text"
                 value={draft.nicheCustom || ""}
                 onChange={(e) =>
                   onChange({
                     nicheCustom: e.target.value,
-                    templateId: suggestTemplateId("other", e.target.value),
+                    templateId:
+                      draft.niche === "ecommerce"
+                        ? "ecommerce"
+                        : suggestTemplateId("other", e.target.value),
                   })
                 }
-                placeholder="e.g. Vintage vinyl record collecting"
+                placeholder={
+                  draft.niche === "ecommerce"
+                    ? "e.g. ceramic mugs, golf carts, skincare"
+                    : "e.g. Vintage vinyl record collecting"
+                }
               />
+              {draft.niche === "ecommerce" ? (
+                <p className="hint">Used for product images and category copy — be specific.</p>
+              ) : null}
             </div>
           )}
 
@@ -330,7 +414,7 @@ export function WizardPanel({
                   key={t.id}
                   type="button"
                   className={`builder-template-card${(draft.templateId || "niche-template") === t.id ? " is-selected" : ""}`}
-                  onClick={() => onChange({ templateId: t.id as WorkingDraft["templateId"] })}
+                  onClick={() => selectTemplate(t.id as WorkingDraft["templateId"])}
                 >
                   <strong>{t.name}</strong>
                   <span>{t.tag}</span>
@@ -569,37 +653,89 @@ export function WizardPanel({
       {step === "structure" && (
         <section className="builder-section">
           <h2>Site structure</h2>
-          <p className="hint">Choose which pages to generate. Header navigation uses your categories (niche blog).</p>
+          {isEcommerce ? (
+            <p className="hint">
+              Home, Shop, Product, Cart, and Checkout are always included. Toggle optional store pages and edit product
+              categories below.
+            </p>
+          ) : (
+            <p className="hint">Choose which pages to generate. Header navigation uses your categories (niche blog).</p>
+          )}
 
-          <div className="builder-field">
-            <label>Pages to generate</label>
-            <div className="builder-checkbox-grid">
-              {(
-                [
-                  ["about", "About"],
-                  ["faq", "FAQ"],
-                  ["privacy", "Privacy Policy"],
-                  ["terms", "Terms & Conditions"],
-                  ["contact", "Contact"],
-                ] as const
-              ).map(([key, label]) => (
-                <label key={key} className="builder-checkbox">
-                  <input type="checkbox" checked={enabled[key]} onChange={() => togglePage(key)} />
-                  {label}
-                </label>
-              ))}
+          {isEcommerce ? (
+            <>
+              <div className="builder-field">
+                <label>Always included</label>
+                <p className="hint" style={{ marginTop: 0 }}>
+                  Home · Shop · Product detail · Cart · Checkout
+                </p>
+              </div>
+              <div className="builder-field">
+                <label>Optional store pages</label>
+                <div className="builder-checkbox-grid">
+                  {(
+                    [
+                      ["about", "About"],
+                      ["blog", "Blog"],
+                      ["contact", "Contact"],
+                      ["track", "Order tracking"],
+                      ["shipping", "Shipping Policy"],
+                      ["refund", "Refund Policy"],
+                      ["privacy", "Privacy Policy"],
+                      ["terms", "Terms & Conditions"],
+                      ["disclaimer", "Disclaimer"],
+                    ] as const
+                  ).map(([key, label]) => (
+                    <label key={key} className="builder-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={!!enabled[key]}
+                        onChange={() => togglePage(key)}
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </>
+          ) : (
+            <div className="builder-field">
+              <label>Pages to generate</label>
+              <div className="builder-checkbox-grid">
+                {(
+                  [
+                    ["about", "About"],
+                    ["faq", "FAQ"],
+                    ["privacy", "Privacy Policy"],
+                    ["terms", "Terms & Conditions"],
+                    ["contact", "Contact"],
+                  ] as const
+                ).map(([key, label]) => (
+                  <label key={key} className="builder-checkbox">
+                    <input type="checkbox" checked={!!enabled[key]} onChange={() => togglePage(key)} />
+                    {label}
+                  </label>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {isNicheBlog && (
+          {showCategories && (
             <div className="builder-field">
               <div className="builder-section__head">
-                <label style={{ marginBottom: 0 }}>Categories (header nav)</label>
-                <button type="button" className="builder-btn builder-btn--sm" onClick={addCategory}>
-                  + Add category
-                </button>
+                <label style={{ marginBottom: 0 }}>{categoriesLabel}</label>
+                <div className="builder-inline-actions">
+                  {isEcommerce && categories.length === 0 ? (
+                    <button type="button" className="builder-btn builder-btn--sm" onClick={seedEcommerceDefaults}>
+                      Use defaults
+                    </button>
+                  ) : null}
+                  <button type="button" className="builder-btn builder-btn--sm" onClick={addCategory}>
+                    + Add category
+                  </button>
+                </div>
               </div>
-              <p className="hint">Optional — 2–4 topics appear in the header and as homepage tiles.</p>
+              <p className="hint">{categoriesHint}</p>
               <div className="builder-card-list">
                 {categories.map((cat, i) => (
                   <div className="builder-card builder-card--compact" key={i}>
@@ -614,19 +750,28 @@ export function WizardPanel({
                     <input
                       type="text"
                       value={cat.label}
-                      onChange={(e) => setCategory(i, { label: e.target.value })}
-                      placeholder="Topic name"
+                      onChange={(e) =>
+                        setCategory(i, {
+                          label: e.target.value,
+                          slug: slugify(e.target.value) || cat.slug,
+                        })
+                      }
+                      placeholder={isEcommerce ? "Category name" : "Topic name"}
                     />
                   </div>
                 ))}
                 {categories.length === 0 && (
-                  <p className="hint">No categories — a default &quot;Getting Started&quot; section will be used.</p>
+                  <p className="hint">
+                    {isEcommerce
+                      ? "No categories yet — click “Use defaults” or add your own product categories."
+                      : "No categories — defaults will be generated for this template."}
+                  </p>
                 )}
               </div>
             </div>
           )}
 
-          {!isNicheBlog && (
+          {!showCategories && (
             <p className="hint builder-notice">
               Categories apply to the Niche Blog template. Switch templates in Business information to configure blog
               categories.
